@@ -53,6 +53,9 @@ int main(int argc, char **argv)
     printf("rev 0x%x\n", LMS7002M_regs(lms)->reg_0x002f_rev);
     printf("ver 0x%x\n", LMS7002M_regs(lms)->reg_0x002f_ver);
 
+    //turn ldo on
+    LMS7002M_ldo_enable(lms, true, LMS7002M_LDO_ALL);
+
     //turn the clocks on
     double actualRate = 0.0;
     ret = LMS7002M_set_data_clock(lms, REF_FREQ, 61.44e6, &actualRate);
