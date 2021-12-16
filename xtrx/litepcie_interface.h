@@ -9,12 +9,13 @@
 #define LITEPCIE_SPI_DONE    (1 << 0)
 #define LITEPCIE_SPI_LENGTH  (1 << 8)
 
-static inline uint32_t litepcie_interface_transact(void *handle, const uint32_t data, const bool readback)
+static inline uint32_t litepcie_interface_transact(void *handle, const uint32_t data_in, const bool readback)
 {
     int *fd = (int *)handle;
 
     //load tx data
-    litepcie_writel(*fd, CSR_LMS7002M_SPI_MOSI_ADDR, data);
+    LMS7_logf(LMS7_TRACE, "SPI request: 0x%08x", data_in);
+    litepcie_writel(*fd, CSR_LMS7002M_SPI_MOSI_ADDR, data_in);
 
     //start transaction
     litepcie_writel(*fd, CSR_LMS7002M_SPI_CONTROL_ADDR, 32*LITEPCIE_SPI_LENGTH | LITEPCIE_SPI_START);
@@ -23,8 +24,11 @@ static inline uint32_t litepcie_interface_transact(void *handle, const uint32_t 
     while ((litepcie_readl(*fd, CSR_LMS7002M_SPI_STATUS_ADDR) & LITEPCIE_SPI_DONE) == 0);
 
     //load rx data
-    if (readback)
-        return litepcie_readl(*fd, CSR_LMS7002M_SPI_MISO_ADDR) & 0xffff;
-    else
+    if (readback) {
+        uint32_t data_out = litepcie_readl(*fd, CSR_LMS7002M_SPI_MISO_ADDR) & 0xffff;
+        LMS7_logf(LMS7_TRACE, "SPI reply: 0x%08x", data_out);
+        return data_out;
+    } else {
         return 0;
+    }
 }
