@@ -6,6 +6,12 @@ The LMS7002M is Lime’s second-generation field programmable RF (FPRF) transcei
 with extended functionality to cover a greater range of frequencies and applications...
 http://www.limemicro.com/products/field-programmable-rf-ics-lms7002m/
 
+This branch is a WIP to interface with Fairwave's XTRX using LiteX-based gateware:
+
+```
+LITEPCIE_ROOT=/path/to/xtrx_julia/software cmake -GNinja -DCMAKE_BUILD_TYPE=Debug ../
+```
+
 ## Driver functionality
 
 This project contains a C driver for control of the LMS7002M transceiver.

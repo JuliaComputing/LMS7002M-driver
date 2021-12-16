@@ -32,3 +32,5 @@ set_property(TARGET LMS7002M PROPERTY POSITION_INDEPENDENT_CODE TRUE)
 # install headers
 ########################################################################
 install(DIRECTORY include/LMS7002M DESTINATION include)
+
+add_subdirectory("xtrx")
