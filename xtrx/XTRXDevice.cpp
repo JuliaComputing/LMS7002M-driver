@@ -99,7 +99,7 @@ XTRX::XTRX(const SoapySDR::Kwargs &args):
     LMS7002M_sxx_enable(_lms, LMS_TX, true);
 
     // XXX: this is necessary to get initialization to work
-    LMS7002M_spi_write(_lms, 0x0085, 0x0019);
+    LMS7002M_xbuf_share_tx(_lms, true);
 
     LMS7002M_dump_ini(_lms, "wip.ini");
 
