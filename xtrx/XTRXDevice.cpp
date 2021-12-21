@@ -53,14 +53,19 @@ XTRX::XTRX(const SoapySDR::Kwargs &args):
     if (_fd < 0)
         std::runtime_error("XTRX fail to open /dev/litepcie0()");
 
+    //perform reset
+    litepcie_writel(_fd, CSR_LMS7002M_CONTROL_ADDR, 1*(1 << CSR_LMS7002M_CONTROL_RESET_OFFSET));
+    litepcie_writel(_fd, CSR_LMS7002M_CONTROL_ADDR, 0*(1 << CSR_LMS7002M_CONTROL_RESET_OFFSET));
+
     //setup LMS7002M
     _lms = LMS7002M_create(litepcie_interface_transact, &_fd);
     if (_lms == NULL) std::runtime_error("XTRX fail to LMS7002M_create()");
     LMS7002M_reset(_lms);
-    LMS7002M_set_spi_mode(_lms, 4); //set 4-wire spi before reading back
+    LMS7002M_set_spi_mode(_lms, 4);
 
-    //LMS7002M_load_ini(_lms, "/root/src/TBB_to_LPFL_RBB_loopback.ini");
-    //LMS7002M_set_spi_mode(_lms, 4); //set 4-wire spi mode first
+    // FOR DEVELOPMENT
+    LMS7002M_load_ini(_lms, "xtrx.ini");
+    SoapySDR::setLogLevel(SOAPY_SDR_TRACE);
 
     //read info register
     LMS7002M_regs_spi_read(_lms, 0x002f);
