@@ -27,6 +27,9 @@ find_library(LITEPCIE_LIBRARY litepcie
                driver/user/liblitepcie
                litepcie/software/user/liblitepcie)
 
+include_directories(${LITEPCIE_INCLUDE_DIR})
+
+
 ########################################################################
 ## Main executable
 ########################################################################
@@ -35,6 +38,18 @@ add_executable(xtrx_main main.c)
 
 target_include_directories(xtrx_main PRIVATE "../include")
 target_include_directories(xtrx_main PRIVATE "../interfaces")
-target_include_directories(xtrx_main PRIVATE ${LITEPCIE_INCLUDE_DIR})
 
 target_link_libraries(xtrx_main ${LITEPCIE_LIBRARY} LMS7002M m)
+
+
+########################################################################
+## SoapySDR library
+########################################################################
+
+find_package(SoapySDR "0.2.1" REQUIRED)
+
+SOAPY_SDR_MODULE_UTIL(
+    TARGET SoapyXTRX
+    SOURCES XTRXDevice.cpp
+    LIBRARIES ${LITEPCIE_LIBRARY} LMS7002M m
+)

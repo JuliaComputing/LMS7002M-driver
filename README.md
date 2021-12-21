@@ -9,7 +9,33 @@ http://www.limemicro.com/products/field-programmable-rf-ics-lms7002m/
 This branch is a WIP to interface with Fairwave's XTRX using LiteX-based gateware:
 
 ```
-LITEPCIE_ROOT=/path/to/xtrx_julia/software cmake -GNinja -DCMAKE_BUILD_TYPE=Debug ../
+$ LITEPCIE_ROOT=/path/to/xtrx_julia/software cmake -GNinja -DCMAKE_BUILD_TYPE=Debug ../
+$ ninja && ./xtrx/xtrx_main /dev/litepcie0
+=========================================================
+== Test LMS7002M access
+=========================================================
+...
+```
+
+To build and test the SoapySDR integration:
+
+- ensure SoapySDR is installed before configuring the build directory
+- build as above, which should result in `xtrx/libSoapyXTRX.so`
+- link that library into `/usr/local/lib/SoapySDR/modules0.8`
+
+```
+$ SoapySDRUtil --make="driver=XTRX"
+ninja: no work to do.
+######################################################
+##     Soapy SDR -- the SDR abstraction library     ##
+######################################################
+
+Make device driver=XTRX
+...
+[INFO] Initialization complete
+  driver=XTRX
+  hardware=XTRX
+[INFO] Power down and cleanup
 ```
 
 ## Driver functionality

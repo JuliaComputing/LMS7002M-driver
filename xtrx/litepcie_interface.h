@@ -1,4 +1,5 @@
 #include "liblitepcie.h"
+#include <LMS7002M/LMS7002M_logger.h>
 
 #include <fcntl.h>
 #include <unistd.h>

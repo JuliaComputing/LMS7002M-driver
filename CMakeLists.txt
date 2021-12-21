@@ -5,7 +5,7 @@
 # and had install rules for the library and headers
 ########################################################################
 cmake_minimum_required(VERSION 2.8)
-project(LMS7002MDriver C)
+project(LMS7002MDriver)
 
 ########################################################################
 # Compiler setup
