@@ -136,7 +136,7 @@ int LMS7002M_dump_ini(LMS7002M_t *self, const char *path)
     size_t i = 0;
     const int *addrs = LMS7002M_regs_addrs();
 
-    fprintf(p, "[LMS7002 registers ch.A]\n");
+    fprintf(p, "[lms7002_registers_a]\n");
     LMS7002M_set_mac_ch(self, LMS_CHA);
     i = 0;
     while (addrs[i] != 0x0000)
@@ -145,7 +145,7 @@ int LMS7002M_dump_ini(LMS7002M_t *self, const char *path)
         i++;
     }
 
-    fprintf(p, "[LMS7002 registers ch.B]\n");
+    fprintf(p, "[lms7002_registers_b]\n");
     LMS7002M_set_mac_ch(self, LMS_CHB);
     i = 0;
     while (addrs[i] != 0x0000)
@@ -189,13 +189,13 @@ int LMS7002M_load_ini(LMS7002M_t *self, const char *path)
         //parse ini sections
         if (line[0] == '[')
         {
-            if (strcmp(line, "[LMS7002 registers ch.A]") == 0)
+            if (strcmp(line, "[lms7002_registers_a]") == 0)
             {
                 LMS7_logf(LMS7_INFO, "Found section %s", line);
                 write_reg_ok = true;
                 chan = LMS_CHA;
             }
-            else if (strcmp(line, "[LMS7002 registers ch.B]") == 0)
+            else if (strcmp(line, "[lms7002_registers_b]") == 0)
             {
                 LMS7_logf(LMS7_INFO, "Found section %s", line);
                 write_reg_ok = true;
