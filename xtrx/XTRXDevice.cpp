@@ -36,8 +36,8 @@ void customLogHandler(const LMS7_log_level_t level, const char *message)
  * Constructor
  **********************************************************************/
 XTRX::XTRX(const SoapySDR::Kwargs &args):
-    _lms(NULL),
     _fd(-1),
+    _lms(NULL),
     _masterClockRate(1.0e6)
 {
     LMS7_set_log_handler(&customLogHandler);
