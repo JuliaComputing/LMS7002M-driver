@@ -78,7 +78,6 @@ XTRX::XTRX(const SoapySDR::Kwargs &args):
     LMS7002M_invert_fclk(_lms, true);
 
     //enable components
-    LMS7002M_ldo_enable(_lms, true, LMS7002M_LDO_ALL);
     LMS7002M_afe_enable(_lms, LMS_TX, LMS_CHA, true);
     LMS7002M_afe_enable(_lms, LMS_TX, LMS_CHB, true);
     LMS7002M_afe_enable(_lms, LMS_RX, LMS_CHA, true);
@@ -98,7 +97,8 @@ XTRX::XTRX(const SoapySDR::Kwargs &args):
     LMS7002M_sxx_enable(_lms, LMS_RX, true);
     LMS7002M_sxx_enable(_lms, LMS_TX, true);
 
-    // XXX: this is necessary to get initialization to work
+    // XTRX-specific configuration
+    LMS7002M_ldo_enable(_lms, true, LMS7002M_LDO_ALL);
     LMS7002M_xbuf_share_tx(_lms, true);
 
     LMS7002M_dump_ini(_lms, "wip.ini");
@@ -165,8 +165,6 @@ XTRX::XTRX(const SoapySDR::Kwargs &args):
 
     //device args settings applied for debugging purposes
     #define writeArgToSetting(a, k) if (a.count(k) != 0) this->writeSetting(k, a.at(k))
-    writeArgToSetting(args, "FPGA_TX_TEST");
-    writeArgToSetting(args, "FPGA_TSG_CONST");
     writeArgToSetting(args, "RXTSP_TSG_CONST");
     writeArgToSetting(args, "TXTSP_TSG_CONST");
 
@@ -193,6 +191,8 @@ XTRX::~XTRX(void)
     LMS7002M_trf_enable(_lms, LMS_CHAB, false);
     LMS7002M_sxx_enable(_lms, LMS_RX, false);
     LMS7002M_sxx_enable(_lms, LMS_TX, false);
+    LMS7002M_xbuf_share_tx(_lms, false);
+    LMS7002M_ldo_enable(_lms, false, LMS7002M_LDO_ALL);
     LMS7002M_power_down(_lms);
     LMS7002M_destroy(_lms);
     close(_fd);
