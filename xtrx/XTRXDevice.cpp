@@ -64,7 +64,7 @@ XTRX::XTRX(const SoapySDR::Kwargs &args):
     LMS7002M_set_spi_mode(_lms, 4);
 
     // FOR DEVELOPMENT
-    LMS7002M_load_ini(_lms, "xtrx.ini");
+    // LMS7002M_load_ini(_lms, "xtrx.ini");
     SoapySDR::setLogLevel(SOAPY_SDR_TRACE);
 
     //read info register
@@ -97,6 +97,11 @@ XTRX::XTRX(const SoapySDR::Kwargs &args):
     LMS7002M_trf_enable(_lms, LMS_CHB, true);
     LMS7002M_sxx_enable(_lms, LMS_RX, true);
     LMS7002M_sxx_enable(_lms, LMS_TX, true);
+
+    // XXX: this is necessary to get initialization to work
+    LMS7002M_spi_write(_lms, 0x0085, 0x0019);
+
+    LMS7002M_dump_ini(_lms, "wip.ini");
 
     //turn the clocks on
     this->setMasterClockRate(61.44e6);
@@ -168,7 +173,6 @@ XTRX::XTRX(const SoapySDR::Kwargs &args):
     //load the calibration data if present
     this->loadCalData();
 
-    //LMS7002M_dump_ini(_lms, "/root/src/regs.ini");
     SoapySDR::log(SOAPY_SDR_INFO, "Initialization complete");
 }
 
