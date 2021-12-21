@@ -41,7 +41,7 @@ XTRX::XTRX(const SoapySDR::Kwargs &args):
     _masterClockRate(1.0e6)
 {
     LMS7_set_log_handler(&customLogHandler);
-    LMS7_set_log_level(LMS7_INFO);
+    LMS7_set_log_level(LMS7_TRACE);
     SoapySDR::logf(SOAPY_SDR_INFO, "###########################################################");
     SoapySDR::logf(SOAPY_SDR_INFO, "XTRX() setup START");
     SoapySDR::logf(SOAPY_SDR_INFO, "###########################################################");
