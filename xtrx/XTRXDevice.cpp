@@ -195,6 +195,22 @@ XTRX::~XTRX(void)
     close(_fd);
 }
 
+/***********************************************************************
+ * Identification API
+ **********************************************************************/
+
+SoapySDR::Kwargs XTRX::getHardwareInfo(void) const
+{
+    SoapySDR::Kwargs args;
+
+    char fpga_identification[256];
+    for (int i = 0; i < 256; i ++)
+        fpga_identification[i] = litepcie_readl(_fd, CSR_IDENTIFIER_MEM_BASE + 4 * i);
+    args["identification"] = std::string(fpga_identification);
+
+    return args;
+}
+
 /*******************************************************************
  * Antenna API
  ******************************************************************/

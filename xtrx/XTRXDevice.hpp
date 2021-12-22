@@ -35,13 +35,15 @@ public:
 ******************************************************************/
     std::string getDriverKey(void) const
     {
-        return "XTRX";
+        return "XTRX over LitePCIe";
     }
 
     std::string getHardwareKey(void) const
     {
-        return "XTRX";
+        return "Fairwaves XTRX";
     }
+
+    SoapySDR::Kwargs getHardwareInfo(void) const;
 
 /*******************************************************************
 * Channels API
