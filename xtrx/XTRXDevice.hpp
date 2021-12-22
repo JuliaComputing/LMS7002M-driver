@@ -178,6 +178,12 @@ public:
      * - RBB_SET_PATH(path) set the RX baseband input path.
      *   Use BYP, LBF, HBF for bypassing or filter path.
      *   Use LB_BYP, LB_LBF, LB_HBF for loopback versions.
+     *
+     * - TX_RX_LOOPBACK_ENABLE(TRUE/FALSE) - enable TX/RX loopback.
+     *
+     * - TX_PATTERN(pattern) - set the TX pattern.
+     *   pattern 0: disable pattern generator
+     *   pattern 1: counter
      */
     void writeSetting(const std::string &key, const std::string &value);
 

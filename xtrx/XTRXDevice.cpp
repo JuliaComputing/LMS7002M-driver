@@ -764,6 +764,26 @@ void XTRX::writeSetting(const std::string &key, const std::string &value)
         else throw std::runtime_error("XTRX::writeSetting("+key+", "+value+") unknown value");
         LMS7002M_rbb_set_path(_lms, LMS_CHAB, path);
     }
+    else if (key == "TX_RX_LOOPBACK_ENABLE")
+    {
+        uint32_t control = litepcie_readl(_fd, CSR_LMS7002M_CONTROL_ADDR);
+        control &= ~(1 << CSR_LMS7002M_CONTROL_TX_RX_LOOPBACK_ENABLE_OFFSET);
+        if (value == "TRUE")
+            control |= (1 << CSR_LMS7002M_CONTROL_TX_RX_LOOPBACK_ENABLE_OFFSET);
+        else if (value != "FALSE")
+            throw std::runtime_error("XTRX::writeSetting("+key+", "+value+") unknown value");
+        litepcie_writel(_fd, CSR_LMS7002M_CONTROL_ADDR, control);
+    }
+    else if (key == "TX_PATTERN")
+    {
+        uint32_t control = litepcie_readl(_fd, CSR_LMS7002M_CONTROL_ADDR);
+        control &= ~(1 << CSR_LMS7002M_CONTROL_TX_PATTERN_ENABLE_OFFSET);
+        if (value == "1")
+            control |= 1 << CSR_LMS7002M_CONTROL_TX_PATTERN_ENABLE_OFFSET;
+        else if (value != "0")
+            throw std::runtime_error("XTRX::writeSetting("+key+", "+value+") unknown value");
+        litepcie_writel(_fd, CSR_LMS7002M_CONTROL_ADDR, control);
+    }
     else throw std::runtime_error("XTRX::writeSetting("+key+", "+value+") unknown key");
 }
 
