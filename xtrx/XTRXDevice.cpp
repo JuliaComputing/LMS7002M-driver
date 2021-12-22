@@ -768,9 +768,10 @@ void XTRX::writeSetting(const std::string &key, const std::string &value)
     {
         uint32_t control = litepcie_readl(_fd, CSR_LMS7002M_CONTROL_ADDR);
         control &= ~(1 << CSR_LMS7002M_CONTROL_TX_RX_LOOPBACK_ENABLE_OFFSET);
-        if (value == "TRUE")
+        if (value == "TRUE") {
             control |= (1 << CSR_LMS7002M_CONTROL_TX_RX_LOOPBACK_ENABLE_OFFSET);
-        else if (value != "FALSE")
+            LMS7002M_setup_digital_loopback(_lms); // XXX: how to disable?
+        } else if (value != "FALSE")
             throw std::runtime_error("XTRX::writeSetting("+key+", "+value+") unknown value");
         litepcie_writel(_fd, CSR_LMS7002M_CONTROL_ADDR, control);
     }
@@ -778,9 +779,10 @@ void XTRX::writeSetting(const std::string &key, const std::string &value)
     {
         uint32_t control = litepcie_readl(_fd, CSR_LMS7002M_CONTROL_ADDR);
         control &= ~(1 << CSR_LMS7002M_CONTROL_TX_PATTERN_ENABLE_OFFSET);
-        if (value == "1")
+        if (value == "1") {
             control |= 1 << CSR_LMS7002M_CONTROL_TX_PATTERN_ENABLE_OFFSET;
-        else if (value != "0")
+            LMS7002M_setup_digital_loopback(_lms); // XXX: how to disable?
+        } else if (value != "0")
             throw std::runtime_error("XTRX::writeSetting("+key+", "+value+") unknown value");
         litepcie_writel(_fd, CSR_LMS7002M_CONTROL_ADDR, control);
     }
