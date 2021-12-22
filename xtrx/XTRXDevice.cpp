@@ -8,7 +8,6 @@
 //
 
 #include "XTRXDevice.hpp"
-#include "liblitepcie.h"
 #include "litepcie_interface.h"
 #include <SoapySDR/Registry.hpp>
 #include <SoapySDR/Logger.hpp>

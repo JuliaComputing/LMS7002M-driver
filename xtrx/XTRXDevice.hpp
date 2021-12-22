@@ -9,8 +9,10 @@
 
 // For similar implementations, and to extend the implementation, see:
 // https://pothosware.github.io/SoapySDR/doxygen/latest/classSoapySDR_1_1Device.html
-// https://github.com/myriadrf/LimeSuite/blob/master/SoapyLMS7/Settings.cpp
-// https://github.com/xtrx-sdr/libxtrx/blob/master/soapy/SoapyXTRX.cpp
+// https://github.com/myriadrf/LMS7002M-driver/blob/master/evb7/
+// https://github.com/myriadrf/LimeSuite/blob/master/SoapyLMS7/
+// https://github.com/xtrx-sdr/libxtrx/blob/master/soapy/
+// https://github.com/pothosware/SoapyHackRF/
 
 #include <SoapySDR/Device.hpp>
 #include <SoapySDR/Logger.hpp>
@@ -22,6 +24,7 @@
 #include <iostream>
 
 #include <LMS7002M/LMS7002M.h>
+#include "liblitepcie.h"
 
 class XTRX : public SoapySDR::Device
 {
@@ -57,6 +60,37 @@ public:
     {
         return true;
     }
+
+/*******************************************************************
+* Stream API
+******************************************************************/
+
+    SoapySDR::Stream *setupStream(
+        const int direction,
+        const std::string &format,
+        const std::vector<size_t> &channels,
+        const SoapySDR::Kwargs &);
+
+    void closeStream(SoapySDR::Stream *stream);
+
+    int activateStream(
+        SoapySDR::Stream *stream,
+        const int flags,
+        const long long timeNs,
+        const size_t numElems);
+
+    int deactivateStream(
+        SoapySDR::Stream *stream,
+        const int flags,
+        const long long timeNs);
+
+    int acquireReadBuffer(
+        SoapySDR::Stream *stream,
+        size_t &handleOut,
+        const void **buffs,
+        int &flags,
+        long long &timeNs,
+        const long timeoutUs);
 
     /*******************************************************************
      * Antenna API
@@ -204,6 +238,9 @@ public:
      ******************************************************************/
 
 private:
+	SoapySDR::Stream* const TX_STREAM = (SoapySDR::Stream*) 0x1;
+	SoapySDR::Stream* const RX_STREAM = (SoapySDR::Stream*) 0x2;
+    struct litepcie_dma_ctrl _dma;
 
     LMS7002M_dir_t dir2LMS(const int direction) const
     {
