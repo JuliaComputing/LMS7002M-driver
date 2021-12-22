@@ -678,6 +678,107 @@ double XTRX::getMasterClockRate(void) const
 }
 
 /*******************************************************************
+ * Clocking API
+ ******************************************************************/
+std::vector<std::string> XTRX::listSensors(void) const
+{
+    std::vector<std::string> sensors;
+#ifdef CSR_XADC_BASE
+    sensors.push_back("xadc_temp");
+    sensors.push_back("xadc_vccint");
+    sensors.push_back("xadc_vccaux");
+    sensors.push_back("xadc_vccbram");
+#endif
+    return sensors;
+}
+
+SoapySDR::ArgInfo XTRX::getSensorInfo(const std::string &key) const
+{
+    SoapySDR::ArgInfo info;
+
+    std::size_t dash = key.find("_");
+	if (dash < std::string::npos)
+	{
+		std::string deviceStr = key.substr(0, dash);
+		std::string sensorStr = key.substr(dash + 1);
+
+#ifdef CSR_XADC_BASE
+        if (deviceStr == "xadc") {
+            if (sensorStr == "temp") {
+                info.key = "temp";
+                info.value = "0.0";
+                info.units = "C";
+                info.description = "FPGA temperature";
+                info.type = SoapySDR::ArgInfo::FLOAT;
+            }
+            else if (sensorStr == "vccint") {
+                info.key = "vccint";
+                info.value = "0.0";
+                info.units = "V";
+                info.description = "FPGA internal supply voltage";
+                info.type = SoapySDR::ArgInfo::FLOAT;
+            }
+            else if (sensorStr == "vccaux") {
+                info.key = "vccaux";
+                info.value = "0.0";
+                info.units = "V";
+                info.description = "FPGA auxiliary supply voltage";
+                info.type = SoapySDR::ArgInfo::FLOAT;
+            }
+            else if (sensorStr == "vccbram") {
+                info.key = "vccbram";
+                info.value = "0.0";
+                info.units = "V";
+                info.description = "FPGA supply voltage for block RAM memories";
+                info.type = SoapySDR::ArgInfo::FLOAT;
+            }
+            else {
+                throw std::runtime_error("XTRX::getSensorInfo(" + key + ") unknown sensor");
+            }
+            return info;
+        }
+#endif
+        throw std::runtime_error("XTRX::getSensorInfo(" + key + ") unknown device");
+    }
+    throw std::runtime_error("XTRX::getSensorInfo(" + key + ") unknown key");
+}
+
+std::string XTRX::readSensor(const std::string &key) const
+{
+    std::string sensorValue;
+
+    std::size_t dash = key.find("_");
+	if (dash < std::string::npos)
+	{
+		std::string deviceStr = key.substr(0, dash);
+		std::string sensorStr = key.substr(dash + 1);
+
+#ifdef CSR_XADC_BASE
+        if (deviceStr == "xadc") {
+            if (sensorStr == "temp") {
+                sensorValue = std::to_string((double)litepcie_readl(_fd, CSR_XADC_TEMPERATURE_ADDR) * 503.975/4096 - 273.15);
+            }
+            else if (sensorStr == "vccint") {
+                sensorValue = std::to_string((double)litepcie_readl(_fd, CSR_XADC_VCCINT_ADDR) / 4096 * 3);
+            }
+            else if (sensorStr == "vccaux") {
+                sensorValue = std::to_string((double)litepcie_readl(_fd, CSR_XADC_VCCAUX_ADDR) / 4096 * 3);
+            }
+            else if (sensorStr == "vccbram") {
+                sensorValue = std::to_string((double)litepcie_readl(_fd, CSR_XADC_VCCBRAM_ADDR) / 4096 * 3);
+            }
+            else {
+                throw std::runtime_error("XTRX::getSensorInfo(" + key + ") unknown sensor");
+            }
+            return sensorValue;
+        }
+#endif
+        throw std::runtime_error("XTRX::getSensorInfo(" + key + ") unknown device");
+    }
+    throw std::runtime_error("XTRX::getSensorInfo(" + key + ") unknown key");
+}
+
+/*******************************************************************
  * Register API
  ******************************************************************/
 void XTRX::writeRegister(const unsigned addr, const unsigned value)

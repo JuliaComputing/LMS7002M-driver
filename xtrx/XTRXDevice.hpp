@@ -139,6 +139,9 @@ public:
     /*******************************************************************
      * Sensor API
      ******************************************************************/
+    std::vector<std::string> listSensors(void) const;
+    SoapySDR::ArgInfo getSensorInfo(const std::string &key) const;
+    std::string readSensor(const std::string &key) const;
 
     /*******************************************************************
      * Register API
