@@ -73,8 +73,8 @@ XTRX::XTRX(const SoapySDR::Kwargs &args):
     SoapySDR::logf(SOAPY_SDR_INFO, "ver 0x%x", LMS7002M_regs(_lms)->reg_0x002f_ver);
 
     //configure data port directions and data clock rates
-    LMS7002M_configure_lml_port(_lms, LMS_PORT1, LMS_TX, 1);
-    LMS7002M_configure_lml_port(_lms, LMS_PORT2, LMS_RX, 1);
+    LMS7002M_configure_lml_port(_lms, LMS_PORT2, LMS_TX, 1);
+    LMS7002M_configure_lml_port(_lms, LMS_PORT1, LMS_RX, 1);
     LMS7002M_invert_fclk(_lms, true);
 
     //enable components
@@ -491,12 +491,12 @@ void XTRX::setSampleRate(const int direction, const size_t, const double rate)
     if (direction == SOAPY_SDR_RX)
     {
         LMS7002M_rxtsp_set_decim(_lms, LMS_CHAB, intFactor);
-        LMS7002M_configure_lml_port(_lms, LMS_PORT2, LMS_RX, intFactor/2);
+        LMS7002M_configure_lml_port(_lms, LMS_PORT1, LMS_RX, intFactor/2);
     }
     if (direction == SOAPY_SDR_TX)
     {
         LMS7002M_txtsp_set_interp(_lms, LMS_CHAB, intFactor);
-        LMS7002M_configure_lml_port(_lms, LMS_PORT1, LMS_TX, intFactor/2);
+        LMS7002M_configure_lml_port(_lms, LMS_PORT2, LMS_TX, intFactor/2);
     }
 
     _cachedSampleRates[direction] = baseRate/intFactor;
