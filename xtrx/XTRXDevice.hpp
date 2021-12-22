@@ -57,12 +57,6 @@ public:
     }
 
     /*******************************************************************
-     * Cal hooks
-     ******************************************************************/
-    void loadCalData(void);
-    void applyCalData(const int direction, const size_t channel, const double rfFreq);
-
-    /*******************************************************************
      * Antenna API
      ******************************************************************/
     std::vector<std::string> listAntennas(const int direction, const size_t channel) const;
