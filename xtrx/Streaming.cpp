@@ -150,17 +150,31 @@ int SoapyXTRX::acquireReadBuffer(SoapySDR::Stream *stream, size_t &handleOut,
     }
 
     // detect overflows
+    // XXX: why / 2? this is the same overflow condition as the LitePCIe driver
     if ((_rx_stream.hw_count - _rx_stream.sw_count) > DMA_BUFFER_COUNT / 2)
         return SOAPY_SDR_OVERFLOW;
 
+    // get the buffer
+    int buf_offset = _rx_stream.user_count % _mmap_dma_info.dma_tx_buf_count;
+    buffs[0] = _rx_stream.buf + buf_offset * _mmap_dma_info.dma_tx_buf_size;
+
+    // determine how many buffers can be read contiguously
+    int end_offset = buf_offset + buffers_available;
+    if (end_offset > _mmap_dma_info.dma_tx_buf_count) {
+        end_offset = end_offset % _mmap_dma_info.dma_tx_buf_count;
+        end_offset = ((end_offset + _mmap_dma_info.dma_tx_buf_count - 1) /
+                      _mmap_dma_info.dma_tx_buf_count) *
+                     _mmap_dma_info.dma_tx_buf_count;
+    }
+    assert(end_offset <= _mmap_dma_info.dma_tx_buf_count);
+    buffers_available = end_offset - buf_offset;
+    assert(buffers_available > 0);
+
     // update the DMA counters
-    _rx_stream.user_count += 1;
+    _rx_stream.user_count += buffers_available;
     handleOut = _rx_stream.user_count;
 
-    // get the buffer
-    int buf_offset = _rx_stream.user_count % DMA_BUFFER_COUNT;
-    buffs[0] = _rx_stream.buf + buf_offset * DMA_BUFFER_SIZE;
-    return DMA_BUFFER_SIZE;
+    return buffers_available * _mmap_dma_info.dma_tx_buf_size;
 }
 
 void SoapyXTRX::releaseReadBuffer(SoapySDR::Stream *stream, size_t handle) {
@@ -168,8 +182,8 @@ void SoapyXTRX::releaseReadBuffer(SoapySDR::Stream *stream, size_t handle) {
         throw std::runtime_error(
             "SoapyXTRX::releaseReadBuffer(): handles should be released in order");
 
-    // XXX: does it even matter we only bump the sw_count upon 'release'?
-    //      the DMA engine can overflow anyway.
+    // we only bump the software counter here so that we can detect overflows
+    // due to holding on to stream buffers for too long
     struct litepcie_ioctl_mmap_dma_update mmap_dma_update;
     mmap_dma_update.sw_count = handle;
     checked_ioctl(_fd, LITEPCIE_IOCTL_MMAP_DMA_WRITER_UPDATE, &mmap_dma_update);
