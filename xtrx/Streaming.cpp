@@ -1,3 +1,13 @@
+//
+// SoapySDR driver for the LMS7002M-based Fairwaves XTRX.
+//
+// Copyright (c) 2021 Julia Computing.
+// Copyright (c) 2015-2015 Fairwaves, Inc.
+// Copyright (c) 2015-2015 Rice University
+// SPDX-License-Identifier: Apache-2.0
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+
 #include "XTRXDevice.hpp"
 
 #include <chrono>

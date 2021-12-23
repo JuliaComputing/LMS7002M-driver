@@ -38,6 +38,14 @@ Make device driver=XTRX
 [INFO] Power down and cleanup
 ```
 
+For similar implementations, and to extend the implementation, see:
+
+- https://pothosware.github.io/SoapySDR/doxygen/latest/classSoapySDR_1_1Device.html
+- https://github.com/myriadrf/LMS7002M-driver/blob/master/evb7/
+- https://github.com/myriadrf/LimeSuite/blob/master/SoapyLMS7/
+- https://github.com/xtrx-sdr/libxtrx/blob/master/soapy/
+- https://github.com/pothosware/SoapyHackRF/
+
 ## Driver functionality
 
 This project contains a C driver for control of the LMS7002M transceiver.

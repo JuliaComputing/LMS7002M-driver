@@ -1,18 +1,12 @@
 //
-// SoapySDR wrapper for the LMS7002M driver.
+// SoapySDR driver for the LMS7002M-based Fairwaves XTRX.
 //
+// Copyright (c) 2021 Julia Computing.
 // Copyright (c) 2015-2015 Fairwaves, Inc.
 // Copyright (c) 2015-2015 Rice University
 // SPDX-License-Identifier: Apache-2.0
 // http://www.apache.org/licenses/LICENSE-2.0
 //
-
-// For similar implementations, and to extend the implementation, see:
-// https://pothosware.github.io/SoapySDR/doxygen/latest/classSoapySDR_1_1Device.html
-// https://github.com/myriadrf/LMS7002M-driver/blob/master/evb7/
-// https://github.com/myriadrf/LimeSuite/blob/master/SoapyLMS7/
-// https://github.com/xtrx-sdr/libxtrx/blob/master/soapy/
-// https://github.com/pothosware/SoapyHackRF/
 
 #include <SoapySDR/Device.hpp>
 #include <SoapySDR/Logger.hpp>

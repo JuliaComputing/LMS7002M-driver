@@ -1,6 +1,7 @@
 //
-// SoapySDR wrapper for the LMS7002M driver.
+// SoapySDR driver for the LMS7002M-based Fairwaves XTRX.
 //
+// Copyright (c) 2021 Julia Computing.
 // Copyright (c) 2015-2015 Fairwaves, Inc.
 // Copyright (c) 2015-2015 Rice University
 // SPDX-License-Identifier: Apache-2.0
@@ -50,7 +51,7 @@ XTRX::XTRX(const SoapySDR::Kwargs &args):
     // TODO: configurable device number?
     _fd = open("/dev/litepcie0", O_RDWR);
     if (_fd < 0)
-        std::runtime_error("XTRX fail to open /dev/litepcie0()");
+        throw std::runtime_error("XTRX::XTRX(): failed to open /dev/litepcie0");
 
     //perform reset
     litepcie_writel(_fd, CSR_LMS7002M_CONTROL_ADDR, 1*(1 << CSR_LMS7002M_CONTROL_RESET_OFFSET));
@@ -58,7 +59,8 @@ XTRX::XTRX(const SoapySDR::Kwargs &args):
 
     //setup LMS7002M
     _lms = LMS7002M_create(litepcie_interface_transact, &_fd);
-    if (_lms == NULL) std::runtime_error("XTRX fail to LMS7002M_create()");
+    if (_lms == NULL)
+        throw std::runtime_error("XTRX::XTRX(): failed to LMS7002M_create()");
     LMS7002M_reset(_lms);
     LMS7002M_set_spi_mode(_lms, 4);
 
@@ -100,47 +102,15 @@ XTRX::XTRX(const SoapySDR::Kwargs &args):
     LMS7002M_ldo_enable(_lms, true, LMS7002M_LDO_ALL);
     LMS7002M_xbuf_share_tx(_lms, true);
 
+    // FOR DEVELOPMENT
     LMS7002M_dump_ini(_lms, "wip.ini");
 
     //turn the clocks on
+    // XXX: what is this master clock rate? does it make sense for the XTRX?
     this->setMasterClockRate(61.44e6);
 
     SoapySDR::logf(SOAPY_SDR_INFO, "XTRX() setup OK");
 
-    //try test
-    /*
-    this->writeRegister(FPGA_REG_WR_TX_TEST, 1); //test registers drive tx
-    this->writeRegister(FPGA_REG_WR_TX_CHA, 0xAAAABBBB);
-    this->writeRegister(FPGA_REG_WR_TX_CHB, 0xCCCCDDDD);
-    LMS7002M_setup_digital_loopback(_lms);
-    sleep(1);
-    SoapySDR::logf(SOAPY_SDR_INFO, "FPGA_REG_RD_RX_CHA 0x%x", xumem_read32(_regs, FPGA_REG_RD_RX_CHA));
-    SoapySDR::logf(SOAPY_SDR_INFO, "FPGA_REG_RD_RX_CHB 0x%x", xumem_read32(_regs, FPGA_REG_RD_RX_CHB));
-    //*/
-
-    //constant DC level
-    /*
-    LMS7002M_rxtsp_tsg_const(_lms, LMS_CHA, 1 << 14, 1 << 14);
-    LMS7002M_rxtsp_tsg_const(_lms, LMS_CHB, 1 << 14, 1 << 14);
-    //*/
-
-    //tx baseband loopback to rx baseband
-    //LMS7002M_tbb_enable_loopback(_lms, LMS_CHAB, LMS7002M_TBB_MAIN_TBB, false);
-    //LMS7002M_rbb_select_input(_lms, LMS_CHAB, LMS7002M_RBB_BYP_LB);
-
-    //tone from tx dsp
-    //LMS7002M_txtsp_tsg_tone(_lms, LMS_CHA);
-    //LMS7002M_txtsp_tsg_tone(_lms, LMS_CHB);
-
-/*
-    LMS7002M_rxtsp_tsg_tone(_lms, LMS_CHA);
-    LMS7002M_rxtsp_tsg_tone(_lms, LMS_CHB);
-    //*/
-/*
-    sleep(1);
-    SoapySDR::logf(SOAPY_SDR_INFO, "FPGA_REG_RD_RX_CHA 0x%x", xumem_read32(_regs, FPGA_REG_RD_RX_CHA));
-    SoapySDR::logf(SOAPY_SDR_INFO, "FPGA_REG_RD_RX_CHB 0x%x", xumem_read32(_regs, FPGA_REG_RD_RX_CHB));
-*/
     //some defaults to avoid throwing
     _cachedSampleRates[SOAPY_SDR_RX] = 1e6;
     _cachedSampleRates[SOAPY_SDR_TX] = 1e6;
