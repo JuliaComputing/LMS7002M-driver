@@ -48,6 +48,7 @@ class SoapyXTRX : public SoapySDR::Device {
     int acquireReadBuffer(SoapySDR::Stream *stream, size_t &handleOut,
                           const void **buffs, int &flags, long long &timeNs,
                           const long timeoutUs);
+    void releaseReadBuffer(SoapySDR::Stream *stream, size_t handle);
 
     // Antenna API
     std::vector<std::string> listAntennas(const int direction,
@@ -180,7 +181,7 @@ class SoapyXTRX : public SoapySDR::Device {
         bool opened;
         void *buf;
         struct pollfd fds;
-        int64_t hw_count, sw_count;
+        int64_t hw_count, sw_count, user_count;
     };
 
     Stream _rx_stream;

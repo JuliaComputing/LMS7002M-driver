@@ -31,6 +31,7 @@ SoapySDR::Stream *SoapyXTRX::setupStream(const int direction,
         // initialize the DMA counters
         _rx_stream.hw_count = 0;
         _rx_stream.sw_count = 0;
+        _rx_stream.user_count = 0;
 
         // configure the file descriptor watcher
         _rx_stream.fds.fd = _fd;
@@ -136,7 +137,7 @@ int SoapyXTRX::acquireReadBuffer(SoapySDR::Stream *stream, size_t &handleOut,
     litepcie_dma_writer(_fd, 1, &_rx_stream.hw_count, &_rx_stream.sw_count);
 
     // check if buffers available
-    int buffers_available = _rx_stream.hw_count - _rx_stream.sw_count;
+    int buffers_available = _rx_stream.hw_count - _rx_stream.user_count;
 
     // wait, if necessary
     assert(buffers_available >= 0);
@@ -150,18 +151,39 @@ int SoapyXTRX::acquireReadBuffer(SoapySDR::Stream *stream, size_t &handleOut,
             return SOAPY_SDR_TIMEOUT;
 
         // get new DMA counters
-        litepcie_dma_writer(_fd, 1, &_rx_stream.hw_count, &_rx_stream.sw_count);
-        buffers_available = _rx_stream.hw_count - _rx_stream.sw_count;
+        litepcie_dma_writer(_fd, 1, &_rx_stream.hw_count,
+                            &_rx_stream.user_count);
+        buffers_available = _rx_stream.hw_count - _rx_stream.user_count;
         assert(buffers_available > 0);
     }
 
+    SoapySDR::logf(SOAPY_SDR_INFO, "RX dma counts: hw=%d sw=%d user=%d",
+                   _rx_stream.hw_count, _rx_stream.sw_count,
+                   _rx_stream.user_count);
+
+    // detect overflows
+    if ((_rx_stream.hw_count - _rx_stream.sw_count) > DMA_BUFFER_COUNT / 2)
+        return SOAPY_SDR_OVERFLOW;
+
+    // get the buffer
+    handleOut = _rx_stream.user_count;
+    int buf_offset = _rx_stream.user_count % DMA_BUFFER_COUNT;
+    buffs[0] = _rx_stream.buf + buf_offset * DMA_BUFFER_SIZE;
+
     // update the DMA counters
+    _rx_stream.user_count += 1;
+
+    return DMA_BUFFER_SIZE;
+}
+
+void SoapyXTRX::releaseReadBuffer(SoapySDR::Stream *stream, size_t handle) {
+    if (handle != _rx_stream.sw_count)
+        throw std::runtime_error(
+            "SoapyXTRX::releaseReadBuffer(): handle mismatch");
+
+    // XXX: does it even matter we only bump the sw_count upon 'release'?
+    //      the DMA engine can overflow anyway.
     struct litepcie_ioctl_mmap_dma_update mmap_dma_update;
     mmap_dma_update.sw_count = _rx_stream.sw_count + 1;
     checked_ioctl(_fd, LITEPCIE_IOCTL_MMAP_DMA_WRITER_UPDATE, &mmap_dma_update);
-
-    // get the buffer
-    int buf_offset = _rx_stream.sw_count % DMA_BUFFER_COUNT;
-    buffs[0] = _rx_stream.buf + buf_offset * DMA_BUFFER_SIZE;
-    return DMA_BUFFER_SIZE;
 }
