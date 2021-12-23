@@ -28,11 +28,6 @@ SoapySDR::Stream *SoapyXTRX::setupStream(const int direction,
         if (_rx_stream.opened)
             throw std::runtime_error("RX stream already opened");
 
-        // initialize the DMA counters
-        _rx_stream.hw_count = 0;
-        _rx_stream.sw_count = 0;
-        _rx_stream.user_count = 0;
-
         // configure the file descriptor watcher
         _rx_stream.fds.fd = _fd;
         _rx_stream.fds.events = POLLIN;
@@ -53,10 +48,6 @@ SoapySDR::Stream *SoapyXTRX::setupStream(const int direction,
     } else if (direction == SOAPY_SDR_TX) {
         if (_tx_stream.opened)
             throw std::runtime_error("TX stream already opened");
-
-        // initialize the DMA counters
-        _tx_stream.hw_count = 0;
-        _tx_stream.sw_count = 0;
 
         // configure the file descriptor watcher
         _tx_stream.fds.fd = _fd;
@@ -105,6 +96,7 @@ int SoapyXTRX::activateStream(SoapySDR::Stream *stream, const int flags,
     if (stream == RX_STREAM) {
         // enable the DMA engine
         litepcie_dma_writer(_fd, 1, &_rx_stream.hw_count, &_rx_stream.sw_count);
+        _rx_stream.user_count = 0;
     } else if (stream == TX_STREAM) {
         // enable the DMA engine
         litepcie_dma_reader(_fd, 0, &_tx_stream.hw_count, &_tx_stream.sw_count);
@@ -157,10 +149,6 @@ int SoapyXTRX::acquireReadBuffer(SoapySDR::Stream *stream, size_t &handleOut,
         assert(buffers_available > 0);
     }
 
-    SoapySDR::logf(SOAPY_SDR_INFO, "RX dma counts: hw=%d sw=%d user=%d",
-                   _rx_stream.hw_count, _rx_stream.sw_count,
-                   _rx_stream.user_count);
-
     // detect overflows
     if ((_rx_stream.hw_count - _rx_stream.sw_count) > DMA_BUFFER_COUNT / 2)
         return SOAPY_SDR_OVERFLOW;
@@ -179,7 +167,7 @@ int SoapyXTRX::acquireReadBuffer(SoapySDR::Stream *stream, size_t &handleOut,
 void SoapyXTRX::releaseReadBuffer(SoapySDR::Stream *stream, size_t handle) {
     if (handle != _rx_stream.sw_count)
         throw std::runtime_error(
-            "SoapyXTRX::releaseReadBuffer(): handle mismatch");
+            "SoapyXTRX::releaseReadBuffer(): handles should be released in order");
 
     // XXX: does it even matter we only bump the sw_count upon 'release'?
     //      the DMA engine can overflow anyway.
