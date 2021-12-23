@@ -163,9 +163,9 @@ int SoapyXTRX::acquireReadBuffer(SoapySDR::Stream *stream, size_t &handleOut,
         assert(buffers_available > 0);
     }
 
-    // detect overflows
-    // XXX: why / 2? this is the same overflow condition as the LitePCIe driver
-    if ((_rx_stream.hw_count - _rx_stream.sw_count) > DMA_BUFFER_COUNT / 2)
+    // detect overflows of the underlying circular buffer
+    if ((_rx_stream.hw_count - _rx_stream.sw_count) >
+        _mmap_dma_info.dma_tx_buf_count)
         return SOAPY_SDR_OVERFLOW;
 
     // get the buffer
