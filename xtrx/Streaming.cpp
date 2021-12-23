@@ -35,17 +35,11 @@ void SoapyXTRX::closeStream(SoapySDR::Stream *stream) { return; }
 
 int SoapyXTRX::activateStream(SoapySDR::Stream *stream, const int flags,
                               const long long timeNs, const size_t numElems) {
-    // XXX: initialize once, globally
-    _dma = {.use_writer = 1};
-    if (litepcie_dma_init(&_dma, "/dev/litepcie0", 0))
-        throw std::runtime_error("Failed to initialize DMA");
-
     return 0;
 }
 
 int SoapyXTRX::deactivateStream(SoapySDR::Stream *stream, const int flags,
                                 const long long timeNs) {
-    litepcie_dma_cleanup(&_dma);
     return 0;
 }
 
