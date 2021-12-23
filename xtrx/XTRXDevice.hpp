@@ -45,6 +45,7 @@ class SoapyXTRX : public SoapySDR::Device {
                        const long long timeNs, const size_t numElems) override;
     int deactivateStream(SoapySDR::Stream *stream, const int flags,
                          const long long timeNs) override;
+    size_t getNumDirectAccessBuffers(SoapySDR::Stream *stream) override;
     int acquireReadBuffer(SoapySDR::Stream *stream, size_t &handleOut,
                           const void **buffs, int &flags, long long &timeNs,
                           const long timeoutUs) override;

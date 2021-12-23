@@ -15,9 +15,6 @@
 #include <thread>
 #include <sys/mman.h>
 
-// XXX: these functions are stubs, just there so that we can read data
-//      to verify the digital interface
-
 SoapySDR::Stream *SoapyXTRX::setupStream(const int direction,
                                          const std::string &format,
                                          const std::vector<size_t> &channels,
@@ -119,6 +116,20 @@ int SoapyXTRX::deactivateStream(SoapySDR::Stream *stream, const int flags,
     return 0;
 }
 
+// XXX: does this matter given our DMA set-up? buffers don't strictly need to be
+//      released, since they are part of a ring buffer. But according to the
+//      docs, a default return value of 0 indicates that the direct buffer API
+//      isn't supported, so at least return something here.
+size_t SoapyXTRX::getNumDirectAccessBuffers(SoapySDR::Stream *stream)
+{
+    if (stream == RX_STREAM)
+        return _mmap_dma_info.dma_tx_buf_count;
+    else if (stream == TX_STREAM)
+        return _mmap_dma_info.dma_rx_buf_count;
+    else
+        throw std::runtime_error("SoapySDR::getNumDirectAccessBuffers(): invalid stream");
+}
+
 int SoapyXTRX::acquireReadBuffer(SoapySDR::Stream *stream, size_t &handleOut,
                                  const void **buffs, int &flags,
                                  long long &timeNs, const long timeoutUs) {
@@ -188,3 +199,8 @@ void SoapyXTRX::releaseReadBuffer(SoapySDR::Stream *stream, size_t handle) {
     mmap_dma_update.sw_count = handle;
     checked_ioctl(_fd, LITEPCIE_IOCTL_MMAP_DMA_WRITER_UPDATE, &mmap_dma_update);
 }
+
+// TODO: TX implementation
+
+// TODO: implement the user-friendlier, non zero-copy interface
+//       on top of this direct direct buffer access API implementation
