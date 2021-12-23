@@ -28,15 +28,19 @@ SoapySDR::Stream *SoapyXTRX::setupStream(const int direction,
         if (_rx_stream.opened)
             throw std::runtime_error("RX stream already opened");
 
+        // initialize the DMA counters
         _rx_stream.hw_count = 0;
         _rx_stream.sw_count = 0;
 
+        // configure the file descriptor watcher
         _rx_stream.fds.fd = _fd;
         _rx_stream.fds.events = POLLIN;
 
+        // initialize the DMA engine
         if ((litepcie_request_dma(_fd, 0, 1) == 0))
             throw std::runtime_error("DMA not available");
 
+        // mmap the DMA buffers
         _rx_stream.buf =
             mmap(NULL, DMA_BUFFER_TOTAL_SIZE, PROT_READ | PROT_WRITE,
                  MAP_SHARED, _fd, _mmap_dma_info.dma_rx_buf_offset);
@@ -49,6 +53,25 @@ SoapySDR::Stream *SoapyXTRX::setupStream(const int direction,
         if (_tx_stream.opened)
             throw std::runtime_error("TX stream already opened");
 
+        // initialize the DMA counters
+        _tx_stream.hw_count = 0;
+        _tx_stream.sw_count = 0;
+
+        // configure the file descriptor watcher
+        _tx_stream.fds.fd = _fd;
+        _tx_stream.fds.events = POLLOUT;
+
+        // initialize the DMA engine
+        if ((litepcie_request_dma(_fd, 1, 0) == 0))
+            throw std::runtime_error("DMA not available");
+
+        // mmap the DMA buffers
+        _tx_stream.buf =
+            mmap(NULL, DMA_BUFFER_TOTAL_SIZE, PROT_WRITE, MAP_SHARED, _fd,
+                 _mmap_dma_info.dma_tx_buf_offset);
+        if (_tx_stream.buf == MAP_FAILED)
+            throw std::runtime_error("MMAP failed");
+
         _tx_stream.opened = true;
         return TX_STREAM;
     } else {
@@ -60,24 +83,46 @@ void SoapyXTRX::closeStream(SoapySDR::Stream *stream) {
     std::lock_guard<std::mutex> lock(_mutex);
 
     if (stream == RX_STREAM) {
-        litepcie_dma_writer(_fd, 0, &_rx_stream.hw_count, &_rx_stream.sw_count);
+        // release the DMA engine
         litepcie_release_dma(_fd, 0, 1);
+
         munmap(_rx_stream.buf, _mmap_dma_info.dma_tx_buf_size *
                                    _mmap_dma_info.dma_tx_buf_count);
         _rx_stream.opened = false;
     } else if (stream == TX_STREAM) {
+        // release the DMA engine
+        litepcie_release_dma(_fd, 1, 0);
+
+        munmap(_tx_stream.buf, _mmap_dma_info.dma_rx_buf_size *
+                                   _mmap_dma_info.dma_rx_buf_count);
         _tx_stream.opened = false;
     }
 }
 
 int SoapyXTRX::activateStream(SoapySDR::Stream *stream, const int flags,
                               const long long timeNs, const size_t numElems) {
-    // XXX: set-up the LMS7002M here
+    if (stream == RX_STREAM) {
+        // enable the DMA engine
+        litepcie_dma_writer(_fd, 1, &_rx_stream.hw_count, &_rx_stream.sw_count);
+    } else if (stream == TX_STREAM) {
+        // enable the DMA engine
+        litepcie_dma_reader(_fd, 0, &_tx_stream.hw_count, &_tx_stream.sw_count);
+    }
+
+    // TODO: set-up the LMS7002M
+
     return 0;
 }
 
 int SoapyXTRX::deactivateStream(SoapySDR::Stream *stream, const int flags,
                                 const long long timeNs) {
+    if (stream == RX_STREAM) {
+        // disable the DMA engine
+        litepcie_dma_writer(_fd, 0, &_rx_stream.hw_count, &_rx_stream.sw_count);
+    } else if (stream == TX_STREAM) {
+        // disable the DMA engine
+        litepcie_dma_reader(_fd, 1, &_tx_stream.hw_count, &_tx_stream.sw_count);
+    }
     return 0;
 }
 
