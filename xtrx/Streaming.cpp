@@ -130,9 +130,9 @@ int SoapyXTRX::acquireReadBuffer(SoapySDR::Stream *stream, size_t &handleOut,
 
     // check if buffers available
     int buffers_available = _rx_stream.hw_count - _rx_stream.user_count;
+    assert(buffers_available >= 0);
 
     // wait, if necessary
-    assert(buffers_available >= 0);
     if (buffers_available == 0) {
         int ret = poll(&_rx_stream.fds, 1, timeoutUs / 1000);
         if (ret < 0)
