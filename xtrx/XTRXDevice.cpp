@@ -132,10 +132,8 @@ SoapyXTRX::SoapyXTRX(const SoapySDR::Kwargs &args)
         this->setIQBalance(SOAPY_SDR_TX, i, std::polar(1.0, 0.0));
     }
 
-    // activate DMA
-    _dma = {.use_reader = 1, .use_writer = 1};
-    if (litepcie_dma_init(&_dma, "/dev/litepcie0", 0))
-        throw std::runtime_error("SoapyXTRX(): failed to initialize DMA");
+    // get details on the DMA
+    checked_ioctl(_fd, LITEPCIE_IOCTL_MMAP_DMA_INFO, &_mmap_dma_info);
 
     // device args settings applied for debugging purposes
     #define writeArgToSetting(a, k)                                            \
@@ -149,8 +147,6 @@ SoapyXTRX::SoapyXTRX(const SoapySDR::Kwargs &args)
 
 SoapyXTRX::~SoapyXTRX(void) {
     SoapySDR::log(SOAPY_SDR_INFO, "Power down and cleanup");
-    litepcie_dma_cleanup(&_dma);
-
     // power down and clean up
     LMS7002M_afe_enable(_lms, LMS_TX, LMS_CHA, false);
     LMS7002M_afe_enable(_lms, LMS_TX, LMS_CHB, false);

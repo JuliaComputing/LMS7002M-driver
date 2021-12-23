@@ -172,7 +172,19 @@ class SoapyXTRX : public SoapySDR::Device {
   private:
     SoapySDR::Stream *const TX_STREAM = (SoapySDR::Stream *)0x1;
     SoapySDR::Stream *const RX_STREAM = (SoapySDR::Stream *)0x2;
-    struct litepcie_dma_ctrl _dma;
+    struct litepcie_ioctl_mmap_dma_info _mmap_dma_info;
+
+    struct Stream {
+        Stream() : opened(false) {}
+
+        bool opened;
+        void *buf;
+        struct pollfd fds;
+        int64_t hw_count, sw_count;
+    };
+
+    Stream _rx_stream;
+    Stream _tx_stream;
 
     LMS7002M_dir_t dir2LMS(const int direction) const {
         return (direction == SOAPY_SDR_RX) ? LMS_RX : LMS_TX;

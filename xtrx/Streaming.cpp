@@ -11,7 +11,9 @@
 #include "XTRXDevice.hpp"
 
 #include <chrono>
+#include <cassert>
 #include <thread>
+#include <sys/mman.h>
 
 // XXX: these functions are stubs, just there so that we can read data
 //      to verify the digital interface
@@ -23,18 +25,54 @@ SoapySDR::Stream *SoapyXTRX::setupStream(const int direction,
     std::lock_guard<std::mutex> lock(_mutex);
 
     if (direction == SOAPY_SDR_RX) {
+        if (_rx_stream.opened)
+            throw std::runtime_error("RX stream already opened");
+
+        _rx_stream.hw_count = 0;
+        _rx_stream.sw_count = 0;
+
+        _rx_stream.fds.fd = _fd;
+        _rx_stream.fds.events = POLLIN;
+
+        if ((litepcie_request_dma(_fd, 0, 1) == 0))
+            throw std::runtime_error("DMA not available");
+
+        _rx_stream.buf =
+            mmap(NULL, DMA_BUFFER_TOTAL_SIZE, PROT_READ | PROT_WRITE,
+                 MAP_SHARED, _fd, _mmap_dma_info.dma_rx_buf_offset);
+        if (_rx_stream.buf == MAP_FAILED)
+            throw std::runtime_error("MMAP failed");
+
+        _rx_stream.opened = true;
         return RX_STREAM;
     } else if (direction == SOAPY_SDR_TX) {
+        if (_tx_stream.opened)
+            throw std::runtime_error("TX stream already opened");
+
+        _tx_stream.opened = true;
         return TX_STREAM;
     } else {
         throw std::runtime_error("Invalid direction");
     }
 }
 
-void SoapyXTRX::closeStream(SoapySDR::Stream *stream) { return; }
+void SoapyXTRX::closeStream(SoapySDR::Stream *stream) {
+    std::lock_guard<std::mutex> lock(_mutex);
+
+    if (stream == RX_STREAM) {
+        litepcie_dma_writer(_fd, 0, &_rx_stream.hw_count, &_rx_stream.sw_count);
+        litepcie_release_dma(_fd, 0, 1);
+        munmap(_rx_stream.buf, _mmap_dma_info.dma_tx_buf_size *
+                                   _mmap_dma_info.dma_tx_buf_count);
+        _rx_stream.opened = false;
+    } else if (stream == TX_STREAM) {
+        _tx_stream.opened = false;
+    }
+}
 
 int SoapyXTRX::activateStream(SoapySDR::Stream *stream, const int flags,
                               const long long timeNs, const size_t numElems) {
+    // XXX: set-up the LMS7002M here
     return 0;
 }
 
@@ -49,28 +87,36 @@ int SoapyXTRX::acquireReadBuffer(SoapySDR::Stream *stream, size_t &handleOut,
     if (stream != RX_STREAM)
         return SOAPY_SDR_STREAM_ERROR;
 
-    // calculate when the loop should exit
-    const auto timeout = std::chrono::duration_cast<
-        std::chrono::high_resolution_clock::duration>(
-        std::chrono::microseconds(timeoutUs));
-    const auto exitTime = std::chrono::high_resolution_clock::now() + timeout;
+    // get the DMA counters
+    litepcie_dma_writer(_fd, 1, &_rx_stream.hw_count, &_rx_stream.sw_count);
 
-    // poll for status events until the timeout expires
-    while (true) {
-        litepcie_dma_process(&_dma);
-        char *buf_rd = litepcie_dma_next_read_buffer(&_dma);
-        if (buf_rd) {
-            buffs[0] = buf_rd;
-            return DMA_BUFFER_SIZE;
-        }
+    // check if buffers available
+    int buffers_available = _rx_stream.hw_count - _rx_stream.sw_count;
 
-        // sleep for a fraction of the total timeout
-        const auto sleepTimeUs = std::min<long>(1000, timeoutUs / 10);
-        std::this_thread::sleep_for(std::chrono::microseconds(sleepTimeUs));
-
-        // check for timeout expired
-        const auto timeNow = std::chrono::high_resolution_clock::now();
-        if (exitTime < timeNow)
+    // wait, if necessary
+    assert(buffers_available >= 0);
+    if (buffers_available == 0) {
+        int ret = poll(&_rx_stream.fds, 1, timeoutUs / 1000);
+        if (ret < 0)
+            throw std::runtime_error(
+                "SoapyXTRX::acquireReadBuffer(): poll failed, " +
+                std::string(strerror(errno)));
+        else if (ret == 0)
             return SOAPY_SDR_TIMEOUT;
+
+        // get new DMA counters
+        litepcie_dma_writer(_fd, 1, &_rx_stream.hw_count, &_rx_stream.sw_count);
+        buffers_available = _rx_stream.hw_count - _rx_stream.sw_count;
+        assert(buffers_available > 0);
     }
+
+    // update the DMA counters
+    struct litepcie_ioctl_mmap_dma_update mmap_dma_update;
+    mmap_dma_update.sw_count = _rx_stream.sw_count + 1;
+    checked_ioctl(_fd, LITEPCIE_IOCTL_MMAP_DMA_WRITER_UPDATE, &mmap_dma_update);
+
+    // get the buffer
+    int buf_offset = _rx_stream.sw_count % DMA_BUFFER_COUNT;
+    buffs[0] = _rx_stream.buf + buf_offset * DMA_BUFFER_SIZE;
+    return DMA_BUFFER_SIZE;
 }
