@@ -34,9 +34,11 @@ SoapySDR::Stream *SoapyXTRX::setupStream(const int direction,
             throw std::runtime_error("DMA not available");
 
         // mmap the DMA buffers
-        _rx_stream.buf =
-            mmap(NULL, DMA_BUFFER_TOTAL_SIZE, PROT_READ | PROT_WRITE,
-                 MAP_SHARED, _fd, _mmap_dma_info.dma_rx_buf_offset);
+        _rx_stream.buf = mmap(NULL,
+                              _mmap_dma_info.dma_rx_buf_count *
+                                  _mmap_dma_info.dma_rx_buf_size,
+                              PROT_READ | PROT_WRITE, MAP_SHARED, _fd,
+                              _mmap_dma_info.dma_rx_buf_offset);
         if (_rx_stream.buf == MAP_FAILED)
             throw std::runtime_error("MMAP failed");
 
@@ -55,9 +57,10 @@ SoapySDR::Stream *SoapyXTRX::setupStream(const int direction,
             throw std::runtime_error("DMA not available");
 
         // mmap the DMA buffers
-        _tx_stream.buf =
-            mmap(NULL, DMA_BUFFER_TOTAL_SIZE, PROT_WRITE, MAP_SHARED, _fd,
-                 _mmap_dma_info.dma_tx_buf_offset);
+        _tx_stream.buf = mmap(
+            NULL,
+            _mmap_dma_info.dma_tx_buf_count * _mmap_dma_info.dma_tx_buf_size,
+            PROT_WRITE, MAP_SHARED, _fd, _mmap_dma_info.dma_tx_buf_offset);
         if (_tx_stream.buf == MAP_FAILED)
             throw std::runtime_error("MMAP failed");
 
