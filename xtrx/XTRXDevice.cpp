@@ -49,7 +49,7 @@ SoapyXTRX::SoapyXTRX(const SoapySDR::Kwargs &args)
         throw std::runtime_error(
             "SoapyXTRX(): failed to open /dev/litepcie0");
 
-    // perform reset
+    // reset XTRX-specific LMS7002M controls (loopback, pattern generator, etc)
     litepcie_writel(_fd, CSR_LMS7002M_CONTROL_ADDR,
                     1 * (1 << CSR_LMS7002M_CONTROL_RESET_OFFSET));
     litepcie_writel(_fd, CSR_LMS7002M_CONTROL_ADDR,
@@ -78,6 +78,7 @@ SoapyXTRX::SoapyXTRX(const SoapySDR::Kwargs &args)
     LMS7002M_configure_lml_port(_lms, LMS_PORT2, LMS_TX, 1);
     LMS7002M_configure_lml_port(_lms, LMS_PORT1, LMS_RX, 1);
     LMS7002M_invert_fclk(_lms, true);
+    LMS7002M_delay_fclk(_lms, 3); // TODO: proper delay calibration
 
     // enable components
     LMS7002M_afe_enable(_lms, LMS_TX, LMS_CHA, true);
@@ -102,9 +103,6 @@ SoapyXTRX::SoapyXTRX(const SoapySDR::Kwargs &args)
     // XTRX-specific configuration
     LMS7002M_ldo_enable(_lms, true, LMS7002M_LDO_ALL);
     LMS7002M_xbuf_share_tx(_lms, true);
-
-    // FOR DEVELOPMENT
-    LMS7002M_dump_ini(_lms, "wip.ini");
 
     // turn the clocks on
     // XXX: what is this master clock rate? does it make sense for the XTRX?
@@ -143,11 +141,16 @@ SoapyXTRX::SoapyXTRX(const SoapySDR::Kwargs &args)
     writeArgToSetting(args, "TXTSP_TSG_CONST");
 
     SoapySDR::log(SOAPY_SDR_INFO, "Initialization complete");
+
+    // FOR DEVELOPMENT
+    LMS7002M_dump_ini(_lms, "wip.ini");
 }
 
 SoapyXTRX::~SoapyXTRX(void) {
     SoapySDR::log(SOAPY_SDR_INFO, "Power down and cleanup");
     // power down and clean up
+    // NOTE: disable if you want to inspect the configuration (e.g. in LimeGUI)
+    //       or to validate the settings (e.g. using xtrx_litepcie_test)
     LMS7002M_afe_enable(_lms, LMS_TX, LMS_CHA, false);
     LMS7002M_afe_enable(_lms, LMS_TX, LMS_CHB, false);
     LMS7002M_afe_enable(_lms, LMS_RX, LMS_CHA, false);
