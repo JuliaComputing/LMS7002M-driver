@@ -13,7 +13,7 @@ SoapySDR.SoapySDRDevice_writeSetting(dev, "TX_PATTERN", "1")
 # open RX stream
 stream = SoapySDR.Stream(ComplexF32, [chan])
 
-function process_buffers(stream)
+function dma_test(stream)
     SoapySDR.activate!(stream)
 
     try
@@ -31,14 +31,14 @@ function process_buffers(stream)
         println("Data rate: $(Base.format_bytes(total_bytes / time))/s")
 
         # print last array, for verification
-        arr = unsafe_wrap(Array, buffs[1], bytes)
+        arr = unsafe_wrap(Array, buffs[1], bytes ÷ sizeof(UInt32))
         display(arr[1:10])
         println("\n ...")
     finally
         SoapySDR.deactivate!(stream)
     end
 end
-process_buffers(stream)
+dma_test(stream)
 
 # close everything
 close(stream)
