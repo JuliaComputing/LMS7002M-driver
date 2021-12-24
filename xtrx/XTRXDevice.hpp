@@ -45,11 +45,19 @@ class SoapyXTRX : public SoapySDR::Device {
                        const long long timeNs, const size_t numElems) override;
     int deactivateStream(SoapySDR::Stream *stream, const int flags,
                          const long long timeNs) override;
+    size_t getStreamMTU(SoapySDR::Stream *stream) const override;
     size_t getNumDirectAccessBuffers(SoapySDR::Stream *stream) override;
-    int acquireReadBuffer(SoapySDR::Stream *stream, size_t &handleOut,
+    int getDirectAccessBufferAddrs(SoapySDR::Stream *stream,
+                                   const size_t handle, void **buffs) override;
+    int acquireReadBuffer(SoapySDR::Stream *stream, size_t &handl,
                           const void **buffs, int &flags, long long &timeNs,
                           const long timeoutUs) override;
     void releaseReadBuffer(SoapySDR::Stream *stream, size_t handle) override;
+    int acquireWriteBuffer(SoapySDR::Stream *stream, size_t &handle,
+                           void **buffs, const long timeoutUs) override;
+    void releaseWriteBuffer(SoapySDR::Stream *stream, size_t handle,
+                            const size_t numElems, int &flags,
+                            const long long timeNs = 0) override;
 
     // Antenna API
     std::vector<std::string> listAntennas(const int direction,
