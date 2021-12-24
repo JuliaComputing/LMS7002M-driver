@@ -1,3 +1,7 @@
+# configure the XTRX to generate a data pattern in the FPGA,
+# and try receiving that pattern using the LMS7002M RF IC.
+# the pattern is just a counter, so the array should contain increasing numbers.
+
 using SoapySDR
 
 # open the first device

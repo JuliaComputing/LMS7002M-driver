@@ -1,3 +1,6 @@
+# configure loopback mode in the the XTRX and LMS7002M RF IC, so transmitted
+# buffers should appear on the RX side.
+
 using SoapySDR, Printf
 
 # open the first device
