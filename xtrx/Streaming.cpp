@@ -42,6 +42,9 @@ SoapySDR::Stream *SoapyXTRX::setupStream(const int direction,
         if (_rx_stream.buf == MAP_FAILED)
             throw std::runtime_error("MMAP failed");
 
+        // make sure the DMA is disabled, or counters could be in a bad state
+        litepcie_dma_writer(_fd, 0, &_rx_stream.hw_count, &_rx_stream.sw_count);
+
         _rx_stream.opened = true;
         return RX_STREAM;
     } else if (direction == SOAPY_SDR_TX) {
@@ -63,6 +66,9 @@ SoapySDR::Stream *SoapyXTRX::setupStream(const int direction,
             PROT_WRITE, MAP_SHARED, _fd, _mmap_dma_info.dma_tx_buf_offset);
         if (_tx_stream.buf == MAP_FAILED)
             throw std::runtime_error("MMAP failed");
+
+        // make sure the DMA is disabled, or counters could be in a bad state
+        litepcie_dma_reader(_fd, 0, &_tx_stream.hw_count, &_tx_stream.sw_count);
 
         _tx_stream.opened = true;
         return TX_STREAM;
