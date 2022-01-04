@@ -31,6 +31,15 @@ include_directories(${LITEPCIE_INCLUDE_DIR})
 
 
 ########################################################################
+## CUDA discovery
+########################################################################
+
+find_package(CUDAToolkit REQUIRED)
+
+include_directories(${CUDAToolkit_INCLUDE_DIRS})
+
+
+########################################################################
 ## Main executable
 ########################################################################
 
@@ -39,7 +48,7 @@ add_executable(xtrx_main main.c)
 target_include_directories(xtrx_main PRIVATE "../include")
 target_include_directories(xtrx_main PRIVATE "../interfaces")
 
-target_link_libraries(xtrx_main ${LITEPCIE_LIBRARY} LMS7002M m)
+target_link_libraries(xtrx_main ${LITEPCIE_LIBRARY} CUDA::cuda_driver LMS7002M m)
 
 
 ########################################################################
@@ -51,5 +60,5 @@ find_package(SoapySDR "0.2.1" REQUIRED)
 SOAPY_SDR_MODULE_UTIL(
     TARGET SoapyXTRX
     SOURCES XTRXDevice.cpp Streaming.cpp
-    LIBRARIES ${LITEPCIE_LIBRARY} LMS7002M m
+    LIBRARIES ${LITEPCIE_LIBRARY} CUDA::cuda_driver LMS7002M m
 )
