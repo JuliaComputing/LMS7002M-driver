@@ -189,7 +189,7 @@ class SoapyXTRX : public SoapySDR::Device {
   private:
     SoapySDR::Stream *const TX_STREAM = (SoapySDR::Stream *)0x1;
     SoapySDR::Stream *const RX_STREAM = (SoapySDR::Stream *)0x2;
-    struct litepcie_ioctl_mmap_dma_info _mmap_dma_info;
+    struct litepcie_ioctl_mmap_dma_info _dma_mmap_info;
 
     struct Stream {
         Stream() : opened(false) {}

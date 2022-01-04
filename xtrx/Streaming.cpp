@@ -35,10 +35,10 @@ SoapySDR::Stream *SoapyXTRX::setupStream(const int direction,
 
         // mmap the DMA buffers
         _rx_stream.buf = mmap(NULL,
-                              _mmap_dma_info.dma_rx_buf_count *
-                                  _mmap_dma_info.dma_rx_buf_size,
+                              _dma_mmap_info.dma_rx_buf_count *
+                                  _dma_mmap_info.dma_rx_buf_size,
                               PROT_READ | PROT_WRITE, MAP_SHARED, _fd,
-                              _mmap_dma_info.dma_rx_buf_offset);
+                              _dma_mmap_info.dma_rx_buf_offset);
         if (_rx_stream.buf == MAP_FAILED)
             throw std::runtime_error("MMAP failed");
 
@@ -62,8 +62,8 @@ SoapySDR::Stream *SoapyXTRX::setupStream(const int direction,
         // mmap the DMA buffers
         _tx_stream.buf = mmap(
             NULL,
-            _mmap_dma_info.dma_tx_buf_count * _mmap_dma_info.dma_tx_buf_size,
-            PROT_WRITE, MAP_SHARED, _fd, _mmap_dma_info.dma_tx_buf_offset);
+            _dma_mmap_info.dma_tx_buf_count * _dma_mmap_info.dma_tx_buf_size,
+            PROT_WRITE, MAP_SHARED, _fd, _dma_mmap_info.dma_tx_buf_offset);
         if (_tx_stream.buf == MAP_FAILED)
             throw std::runtime_error("MMAP failed");
 
@@ -84,15 +84,15 @@ void SoapyXTRX::closeStream(SoapySDR::Stream *stream) {
         // release the DMA engine
         litepcie_release_dma(_fd, 0, 1);
 
-        munmap(_rx_stream.buf, _mmap_dma_info.dma_rx_buf_size *
-                                   _mmap_dma_info.dma_rx_buf_count);
+        munmap(_rx_stream.buf, _dma_mmap_info.dma_rx_buf_size *
+                                   _dma_mmap_info.dma_rx_buf_count);
         _rx_stream.opened = false;
     } else if (stream == TX_STREAM) {
         // release the DMA engine
         litepcie_release_dma(_fd, 1, 0);
 
-        munmap(_tx_stream.buf, _mmap_dma_info.dma_tx_buf_size *
-                                   _mmap_dma_info.dma_tx_buf_count);
+        munmap(_tx_stream.buf, _dma_mmap_info.dma_tx_buf_size *
+                                   _dma_mmap_info.dma_tx_buf_count);
         _tx_stream.opened = false;
     }
 }
@@ -133,18 +133,18 @@ int SoapyXTRX::deactivateStream(SoapySDR::Stream *stream, const int flags,
 
 size_t SoapyXTRX::getStreamMTU(SoapySDR::Stream *stream) const {
     if (stream == RX_STREAM)
-        return _mmap_dma_info.dma_rx_buf_size;
+        return _dma_mmap_info.dma_rx_buf_size;
     else if (stream == TX_STREAM)
-        return _mmap_dma_info.dma_tx_buf_size;
+        return _dma_mmap_info.dma_tx_buf_size;
     else
         throw std::runtime_error("SoapySDR::getStreamMTU(): invalid stream");
 }
 
 size_t SoapyXTRX::getNumDirectAccessBuffers(SoapySDR::Stream *stream) {
     if (stream == RX_STREAM)
-        return _mmap_dma_info.dma_rx_buf_count;
+        return _dma_mmap_info.dma_rx_buf_count;
     else if (stream == TX_STREAM)
-        return _mmap_dma_info.dma_tx_buf_count;
+        return _dma_mmap_info.dma_tx_buf_count;
     else
         throw std::runtime_error("SoapySDR::getNumDirectAccessBuffers(): invalid stream");
 }
@@ -153,10 +153,10 @@ int SoapyXTRX::getDirectAccessBufferAddrs(SoapySDR::Stream *stream,
                                           const size_t handle, void **buffs) {
     if (stream == RX_STREAM)
         buffs[0] =
-            (char *)_rx_stream.buf + handle * _mmap_dma_info.dma_rx_buf_size;
+            (char *)_rx_stream.buf + handle * _dma_mmap_info.dma_rx_buf_size;
     else if (stream == TX_STREAM)
         buffs[0] =
-            (char *)_tx_stream.buf + handle * _mmap_dma_info.dma_rx_buf_size;
+            (char *)_tx_stream.buf + handle * _dma_mmap_info.dma_rx_buf_size;
     else
         throw std::runtime_error(
             "SoapySDR::getDirectAccessBufferAddrs(): invalid stream");
@@ -200,7 +200,7 @@ int SoapyXTRX::acquireReadBuffer(SoapySDR::Stream *stream, size_t &handle,
     // NOTE: the kernel driver is more aggressive here and
     //       treats a difference of half the count as an overflow
     if ((_rx_stream.hw_count - _rx_stream.sw_count) >
-        _mmap_dma_info.dma_rx_buf_count) {
+        _dma_mmap_info.dma_rx_buf_count) {
         // NOTE: a warning for now, because it's easy to trigger these
         //       from Julia (being JIT-compiled and garbage collected)
         SoapySDR::log(SOAPY_SDR_ERROR,
@@ -209,7 +209,7 @@ int SoapyXTRX::acquireReadBuffer(SoapySDR::Stream *stream, size_t &handle,
     }
 
     // get the buffer
-    int buf_offset = _rx_stream.user_count % _mmap_dma_info.dma_rx_buf_count;
+    int buf_offset = _rx_stream.user_count % _dma_mmap_info.dma_rx_buf_count;
     getDirectAccessBufferAddrs(stream, buf_offset, (void **)buffs);
 
     // update the DMA counters
@@ -234,16 +234,16 @@ int SoapyXTRX::acquireWriteBuffer(SoapySDR::Stream *stream, size_t &handle,
 
     // check if there are buffers available
     int buffers_pending = _tx_stream.user_count - _tx_stream.hw_count;
-    assert(buffers_pending <= (int)_mmap_dma_info.dma_tx_buf_count);
+    assert(buffers_pending <= (int)_dma_mmap_info.dma_tx_buf_count);
 
     // if not, check with the DMA engine
-    if (buffers_pending == _mmap_dma_info.dma_tx_buf_count) {
+    if (buffers_pending == _dma_mmap_info.dma_tx_buf_count) {
         litepcie_dma_reader(_fd, 1, &_tx_stream.hw_count, &_tx_stream.sw_count);
         buffers_pending = _tx_stream.user_count - _tx_stream.hw_count;
     }
 
     // if not, wait for new buffers to become available
-    if (buffers_pending == _mmap_dma_info.dma_tx_buf_count) {
+    if (buffers_pending == _dma_mmap_info.dma_tx_buf_count) {
         int ret = poll(&_tx_stream.fds, 1, timeoutUs / 1000);
         if (ret < 0)
             throw std::runtime_error(
@@ -256,10 +256,10 @@ int SoapyXTRX::acquireWriteBuffer(SoapySDR::Stream *stream, size_t &handle,
         litepcie_dma_reader(_fd, 1, &_tx_stream.hw_count,
                             &_tx_stream.user_count);
         buffers_pending = _tx_stream.user_count - _tx_stream.hw_count;
-        assert(buffers_pending < _mmap_dma_info.dma_tx_buf_count);
+        assert(buffers_pending < _dma_mmap_info.dma_tx_buf_count);
     }
 
-    int buffers_available = _mmap_dma_info.dma_tx_buf_count - buffers_pending;
+    int buffers_available = _dma_mmap_info.dma_tx_buf_count - buffers_pending;
 
     // detect underflows
     if (buffers_pending < 0) {
@@ -271,7 +271,7 @@ int SoapyXTRX::acquireWriteBuffer(SoapySDR::Stream *stream, size_t &handle,
     }
 
     // get the buffer
-    int buf_offset = _tx_stream.user_count % _mmap_dma_info.dma_tx_buf_count;
+    int buf_offset = _tx_stream.user_count % _dma_mmap_info.dma_tx_buf_count;
     getDirectAccessBufferAddrs(stream, buf_offset, buffs);
 
     // update the DMA counters

@@ -131,7 +131,7 @@ SoapyXTRX::SoapyXTRX(const SoapySDR::Kwargs &args)
     }
 
     // get details on the DMA
-    checked_ioctl(_fd, LITEPCIE_IOCTL_MMAP_DMA_INFO, &_mmap_dma_info);
+    checked_ioctl(_fd, LITEPCIE_IOCTL_MMAP_DMA_INFO, &_dma_mmap_info);
 
     // device args settings applied for debugging purposes
     #define writeArgToSetting(a, k)                                            \
