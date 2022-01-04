@@ -46,6 +46,9 @@ For similar implementations, and to extend the implementation, see:
 - https://github.com/xtrx-sdr/libxtrx/blob/master/soapy/
 - https://github.com/pothosware/SoapyHackRF/
 
+Recent GPU-related changes on this branch assume a version of the LitePCIe driver
+with support for GPU RDMA.
+
 ## Driver functionality
 
 This project contains a C driver for control of the LMS7002M transceiver.

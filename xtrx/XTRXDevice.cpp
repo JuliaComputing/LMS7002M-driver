@@ -35,6 +35,20 @@ void customLogHandler(const LMS7_log_level_t level, const char *message) {
  * Constructor
  **********************************************************************/
 
+void dma_init_cpu(int fd) {
+    struct litepcie_ioctl_dma_init m;
+    m.use_gpu = 0;
+    checked_ioctl(fd, LITEPCIE_IOCTL_DMA_INIT, &m);
+}
+
+void dma_init_gpu(int fd, void *addr, size_t size) {
+    struct litepcie_ioctl_dma_init m;
+    m.use_gpu = 1;
+    m.gpu_addr = (uint64_t)addr;
+    m.gpu_size = size;
+    checked_ioctl(fd, LITEPCIE_IOCTL_DMA_INIT, &m);
+}
+
 SoapyXTRX::SoapyXTRX(const SoapySDR::Kwargs &args)
     : _fd(-1), _lms(NULL), _masterClockRate(1.0e6) {
     LMS7_set_log_handler(&customLogHandler);
@@ -130,8 +144,35 @@ SoapyXTRX::SoapyXTRX(const SoapySDR::Kwargs &args)
         this->setIQBalance(SOAPY_SDR_TX, i, std::polar(1.0, 0.0));
     }
 
-    // get details on the DMA
+    // set-up the DMA
     checked_ioctl(_fd, LITEPCIE_IOCTL_MMAP_DMA_INFO, &_dma_mmap_info);
+    _dma_target = TargetDevice::CPU;
+    if (args.count("device") != 0) {
+        if (args.at("device") == "CPU")
+            _dma_target = TargetDevice::CPU;
+        else if (args.at("device") == "GPU")
+            _dma_target = TargetDevice::GPU;
+        else
+            throw std::runtime_error("invalid device");
+    }
+    switch (_dma_target) {
+    case TargetDevice::CPU:
+        dma_init_cpu(_fd);
+        _dma_buf = NULL;
+        break;
+    case TargetDevice::GPU:
+        size_t dma_buffer_total_size =
+            _dma_mmap_info.dma_tx_buf_count * _dma_mmap_info.dma_tx_buf_size +
+            _dma_mmap_info.dma_rx_buf_count * _dma_mmap_info.dma_rx_buf_size;
+        checked_cuda_call(
+            cuMemAlloc((CUdeviceptr *)&_dma_buf, dma_buffer_total_size));
+
+        unsigned int flag = 1;
+        checked_cuda_call(cuPointerSetAttribute(
+            &flag, CU_POINTER_ATTRIBUTE_SYNC_MEMOPS, (CUdeviceptr)_dma_buf));
+
+        dma_init_gpu(_fd, _dma_buf, dma_buffer_total_size);
+    }
 
     // device args settings applied for debugging purposes
     #define writeArgToSetting(a, k)                                            \

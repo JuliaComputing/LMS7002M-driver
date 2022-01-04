@@ -20,6 +20,8 @@
 #include <LMS7002M/LMS7002M.h>
 #include "liblitepcie.h"
 
+enum class TargetDevice { CPU, GPU };
+
 class SoapyXTRX : public SoapySDR::Device {
   public:
     SoapyXTRX(const SoapySDR::Kwargs &args);
@@ -189,7 +191,10 @@ class SoapyXTRX : public SoapySDR::Device {
   private:
     SoapySDR::Stream *const TX_STREAM = (SoapySDR::Stream *)0x1;
     SoapySDR::Stream *const RX_STREAM = (SoapySDR::Stream *)0x2;
+
     struct litepcie_ioctl_mmap_dma_info _dma_mmap_info;
+    TargetDevice _dma_target;
+    void *_dma_buf;
 
     struct Stream {
         Stream() : opened(false) {}

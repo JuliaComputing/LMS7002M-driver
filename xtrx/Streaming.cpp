@@ -151,12 +151,26 @@ size_t SoapyXTRX::getNumDirectAccessBuffers(SoapySDR::Stream *stream) {
 
 int SoapyXTRX::getDirectAccessBufferAddrs(SoapySDR::Stream *stream,
                                           const size_t handle, void **buffs) {
-    if (stream == RX_STREAM)
+    if (_dma_target == TargetDevice::CPU && stream == RX_STREAM)
         buffs[0] =
             (char *)_rx_stream.buf + handle * _dma_mmap_info.dma_rx_buf_size;
-    else if (stream == TX_STREAM)
+    else if (_dma_target == TargetDevice::CPU && stream == TX_STREAM)
         buffs[0] =
             (char *)_tx_stream.buf + handle * _dma_mmap_info.dma_rx_buf_size;
+    // XXX: this is a leaky abstraction, exposing how the LitePCIe kernel driver
+    //      manages its DMA buffers. normally this is hidden behind mmap,
+    //      but we can't use its virtual addresses on the GPU.
+    //
+    //      alternatively, if we could re-map the mmap buffers into GPU address
+    //      space, we could keep everything as it is, but cuMemHostRegister
+    //      fails with INVALID_VALUE on such inputs (presumably because the
+    //      underlying pages are already pointing to physical GPU memory).
+    else if (_dma_target == TargetDevice::GPU &&
+             (stream == RX_STREAM || stream == TX_STREAM))
+        buffs[0] = (char *)_dma_buf +
+                   handle * (_dma_mmap_info.dma_tx_buf_size +
+                             _dma_mmap_info.dma_rx_buf_size) +
+                   (stream == RX_STREAM ? _dma_mmap_info.dma_tx_buf_size : 0);
     else
         throw std::runtime_error(
             "SoapySDR::getDirectAccessBufferAddrs(): invalid stream");

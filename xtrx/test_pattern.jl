@@ -4,9 +4,16 @@
 
 using SoapySDR
 
+# GPU: initialize the device
+#using CUDA
+#CuArray([1])
+
 # open the first device
 devs = Devices()
-dev = open(devs[1])
+dev_args = devs[1]
+# GPU: set the DMA target
+#dev_args["device"] = "GPU"
+dev = open(dev_args)
 
 # get the RX channel
 chan = dev.rx[1]
@@ -36,6 +43,8 @@ function dma_test(stream)
 
         # print last array, for verification
         arr = unsafe_wrap(Array, buffs[1], bytes ÷ sizeof(UInt32))
+        # GPU: wrap as a CuArray instead
+        #unsafe_wrap(CuArray, reinterpret(CuPtr{UInt32}, buffs[1]), ...)
         display(arr[1:10])
         println("\n ...")
     finally
