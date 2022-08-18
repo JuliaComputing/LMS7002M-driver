@@ -264,6 +264,14 @@ LMS7002M_API void LMS7002M_delay_mclk(LMS7002M_t *self, const int delay);
 LMS7002M_API void LMS7002M_setup_digital_loopback(LMS7002M_t *self);
 
 /*!
+ * Enable digital loopback inside the lime light using LFSR data.
+ * This call also applies the tx fifo write clock to the rx fifo.
+ * To undo the effect of this loopback, call LMS7002M_configure_lml_port().
+ * \param self an instance of the LMS7002M driver
+ */
+LMS7002M_API void LMS7002M_setup_digital_loopback_lfsr(LMS7002M_t *self);
+
+/*!
  * Set the MAC mux for channel A/B shadow registers.
  * This call does not incur a register write if the value is unchanged.
  * This call is mostly used internally by other calls that have to set the MAC.

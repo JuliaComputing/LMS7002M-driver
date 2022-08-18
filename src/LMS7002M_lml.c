@@ -230,6 +230,25 @@ void LMS7002M_setup_digital_loopback(LMS7002M_t *self)
     LMS7002M_regs_spi_write(self, 0x002A);
 }
 
+void LMS7002M_setup_digital_loopback_lfsr(LMS7002M_t *self)
+{
+    //LML is in global register space
+    LMS7002M_set_mac_ch(self, LMS_CHAB);
+
+    // TODO: DRY with the above method
+    //self->regs->reg_0x002a_rx_mux = REG_0X002A_RX_MUX_TXFIFO;
+    self->regs->reg_0x002a_rx_mux = REG_0X002A_RX_MUX_LFSR;
+    if (self->regs->reg_0x002a_txwrclk_mux == REG_0X002A_TXWRCLK_MUX_FCLK1)
+    {
+        self->regs->reg_0x002a_rxwrclk_mux = REG_0X002A_RXWRCLK_MUX_FCLK1;
+    }
+    if (self->regs->reg_0x002a_txwrclk_mux == REG_0X002A_TXWRCLK_MUX_FCLK2)
+    {
+        self->regs->reg_0x002a_rxwrclk_mux = REG_0X002A_RXWRCLK_MUX_FCLK2;
+    }
+    LMS7002M_regs_spi_write(self, 0x002A);
+}
+
 void LMS7002M_set_mac_ch(LMS7002M_t *self, const LMS7002M_chan_t channel)
 {
     //pick the register map and setting based on channel
