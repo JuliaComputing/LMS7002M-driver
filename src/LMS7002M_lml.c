@@ -247,6 +247,9 @@ void LMS7002M_setup_digital_loopback_lfsr(LMS7002M_t *self)
         self->regs->reg_0x002a_rxwrclk_mux = REG_0X002A_RXWRCLK_MUX_FCLK2;
     }
     LMS7002M_regs_spi_write(self, 0x002A);
+
+    // reset
+    LMS7002M_reset_lml_fifo(self, LMS_RX);
 }
 
 void LMS7002M_set_mac_ch(LMS7002M_t *self, const LMS7002M_chan_t channel)
