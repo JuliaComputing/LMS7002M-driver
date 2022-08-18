@@ -220,6 +220,8 @@ static int tx_cal_tbb_lpflad(LMS7002M_t *self, const LMS7002M_chan_t channel, co
     const double p4 = 21.0384293169607;
     const double p5 = -48.4092606238297;
     const int rcal_lpflad_tbb = (int)(f*f*f*f*p1 + f*f*f*p2 + f*f*p3 + f*p4 + p5);
+    LMS7_logf(LMS7_INFO, "rcal_lpflad_tbb: 0x%x (%d)", rcal_lpflad_tbb, rcal_lpflad_tbb);
+    LMS7_logf(LMS7_INFO, "bw: %f", bw);
     LMS7002M_regs(self)->reg_0x0109_rcal_lpflad_tbb = rcal_lpflad_tbb;
     LMS7002M_regs(self)->reg_0x0105_loopb_tbb = 2;
     LMS7002M_regs_spi_write(self, 0x0105);

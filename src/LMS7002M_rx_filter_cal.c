@@ -56,6 +56,8 @@ static int rx_cal_loop(
 
     //--- gain selection ---//
     const int rssi_value_50k = cal_gain_selection(self, channel);
+    LMS7_logf(LMS7_INFO, "rssi_value_50k: 0x%x", rssi_value_50k);
+    LMS7_logf(LMS7_INFO, "initial register value: 0x%x <- 0x%x", reg_addr, *reg_ptr);
 
     //--- setup calibration tone ---//
     int status = setup_rx_cal_tone(self, channel, bw);
@@ -78,13 +80,16 @@ static int rx_cal_loop(
         rssi_value = cal_read_rssi(self, channel);
         if (rssi_value > rssi_value_50k*0.7071 && adjust < 0) break;
         if (rssi_value < rssi_value_50k*0.7071 && adjust > 0) break;
+
+        int int_rssi_value_50k_sqrt2 = (int) (rssi_value_50k*0.7071);
+        LMS7_logf(LMS7_INFO, "rssi: %d (thresh: %d)", rssi_value, int_rssi_value_50k_sqrt2);
         if (*reg_ptr == 0 || *reg_ptr == reg_max)
         {
             LMS7_logf(LMS7_ERROR, "failed to cal %s -> %d", reg_name, *reg_ptr);
             return -1;
         }
     }
-    LMS7_logf(LMS7_DEBUG, "%s = %d", reg_name, *reg_ptr);
+    LMS7_logf(LMS7_I, "%s = %d", reg_name, *reg_ptr);
     return 0;
 }
 
@@ -221,23 +226,32 @@ static int rx_cal_tia_rfe(LMS7002M_t *self, const LMS7002M_chan_t channel, const
     //--- cfb_tia_rfe, ccomp_tia_rfe ---//
     int cfb_tia_rfe = 0;
     int ccomp_tia_rfe = 0;
-    if (g_tia_rfe_user == 3 || g_tia_rfe_user == 2)
-    {
-        cfb_tia_rfe = (int)(1680e6/bw - 10);
-        ccomp_tia_rfe = cfb_tia_rfe/100;
-    }
-    else if (g_tia_rfe_user == 1)
-    {
-        cfb_tia_rfe = (int)(5400e6/bw - 10);
-        ccomp_tia_rfe = (int)(cfb_tia_rfe/100 + 1);
-    }
-    else
-    {
-        LMS7_logf(LMS7_ERROR, "g_tia_rfe must be [1, 2, or 3], got %d", g_tia_rfe_user);
-        status = -1;
-        goto done;
+    if (bw < 54e6) {
+        cfb_tia_rfe = 1;
+        ccomp_tia_rfe = 0;
+    } else {
+        if (g_tia_rfe_user == 3 || g_tia_rfe_user == 2)
+        {
+            cfb_tia_rfe = (int)(1680e6/bw - 10);
+            ccomp_tia_rfe = cfb_tia_rfe/100;
+        }
+        else if (g_tia_rfe_user == 1)
+        {
+            cfb_tia_rfe = (int)(5400e6/bw - 10);
+            ccomp_tia_rfe = (int)(cfb_tia_rfe/100 + 1);
+        }
+        else
+        {
+            LMS7_logf(LMS7_ERROR, "g_tia_rfe must be [1, 2, or 3], got %d", g_tia_rfe_user);
+            status = -1;
+            goto done;
+        }
     }
     if (ccomp_tia_rfe > 15) ccomp_tia_rfe = 15;
+    if (cfb_tia_rfe > 4095) cfb_tia_rfe = 4095;
+    LMS7_logf(LMS7_INFO, "cfb_tia_rfe: 0x%x (%d)\n", cfb_tia_rfe, cfb_tia_rfe);
+    LMS7_logf(LMS7_INFO, "bw: %f\n", bw);
+    LMS7_logf(LMS7_INFO, "g_tia_rfe_user: %d\n", g_tia_rfe_user);
     LMS7002M_regs(self)->reg_0x0112_cfb_tia_rfe = cfb_tia_rfe;
     LMS7002M_regs(self)->reg_0x0112_ccomp_tia_rfe = ccomp_tia_rfe;
     LMS7002M_regs_spi_write(self, 0x0112);
@@ -288,6 +302,9 @@ static int rx_cal_rbb_lpfl(LMS7002M_t *self, const LMS7002M_chan_t channel, cons
     else if (bw > 3e6)   rcc_ctl_lpfl_rbb = 2;
     else if (bw > 1.4e6) rcc_ctl_lpfl_rbb = 1;
     else                 rcc_ctl_lpfl_rbb = 0;
+
+    LMS7_logf(LMS7_INFO, "rcc_ctl_lpfl_rbb: 0x%x (%d)\n", rcc_ctl_lpfl_rbb, rcc_ctl_lpfl_rbb);
+    LMS7_logf(LMS7_INFO, "bw: %f\n", bw);
     LMS7002M_regs(self)->reg_0x0117_rcc_ctl_lpfl_rbb = rcc_ctl_lpfl_rbb;
     LMS7002M_regs_spi_write(self, 0x0117);
 
