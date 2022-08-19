@@ -89,7 +89,7 @@ static int rx_cal_loop(
             return -1;
         }
     }
-    LMS7_logf(LMS7_I, "%s = %d", reg_name, *reg_ptr);
+    LMS7_logf(LMS7_INFO, "%s = %d", reg_name, *reg_ptr);
     return 0;
 }
 
