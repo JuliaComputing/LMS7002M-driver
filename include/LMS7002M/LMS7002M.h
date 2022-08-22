@@ -496,6 +496,15 @@ LMS7002M_API void LMS7002M_txtsp_tsg_const(LMS7002M_t *self, const LMS7002M_chan
 LMS7002M_API void LMS7002M_txtsp_tsg_tone(LMS7002M_t *self, const LMS7002M_chan_t channel);
 
 /*!
+ * Test tone signal for TX TSP chain with selectable divider.
+ * Use LMS7002M_txtsp_enable() to restore regular mode.
+ * \param self an instance of the LMS7002M driver
+ * \param channel the channel LMS_CHA or LMS_CHB
+ */
+LMS7002M_API void LMS7002M_txtsp_tsg_tone_div(LMS7002M_t *self, const LMS7002M_chan_t channel, int div);
+
+
+/*!
  * DC offset correction value for Tx TSP chain.
  * Correction values are maximum 1.0 (full scale).
  * \param self an instance of the LMS7002M driver
@@ -691,6 +700,15 @@ LMS7002M_API void LMS7002M_rxtsp_tsg_const(LMS7002M_t *self, const LMS7002M_chan
  * \param channel the channel LMS_CHA or LMS_CHB
  */
 LMS7002M_API void LMS7002M_rxtsp_tsg_tone(LMS7002M_t *self, const LMS7002M_chan_t channel);
+
+/*!
+ * Test tone signal for RX TSP chain with selectable clock divider.
+ * Use LMS7002M_rxtsp_enable() to restore regular mode.
+ * \param self an instance of the LMS7002M driver
+ * \param channel the channel LMS_CHA or LMS_CHB
+ */
+LMS7002M_API void LMS7002M_rxtsp_tsg_tone_div(LMS7002M_t *self, const LMS7002M_chan_t channel, int div);
+
 
 /*!
  * Read the digital RSSI indicator in the Rx TSP chain.
