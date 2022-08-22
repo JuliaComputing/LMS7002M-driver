@@ -119,7 +119,7 @@ void LMS7002M_rxtsp_tsg_tone_div(LMS7002M_t *self, const LMS7002M_chan_t channel
 
     switch (div) {
         case 4: self->regs->reg_0x0400_tsgfcw = REG_0X0400_TSGFCW_DIV4; break;
-        case 8: self->regs->reg_0x0400_tsgfcw = REG_0X0400_TSGFCW_DIV8; break;
+        default: self->regs->reg_0x0400_tsgfcw = REG_0X0400_TSGFCW_DIV8; break;
     }
     LMS7002M_regs_spi_write(self, 0x0400);
 }
