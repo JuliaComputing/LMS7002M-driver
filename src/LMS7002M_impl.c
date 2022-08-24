@@ -165,7 +165,10 @@ int LMS7002M_dump_ini(LMS7002M_t *self, const char *path)
 int LMS7002M_load_ini(LMS7002M_t *self, const char *path)
 {
     FILE *p = fopen(path, "r");
-    if (p == NULL) return -1;
+    if (p == NULL) {
+        LMS7_logf(LMS7_ERROR, "Failed to open %s", path);
+        return -1;
+    }
 
     bool write_reg_ok = false;
     LMS7002M_chan_t chan = LMS_CHA;
