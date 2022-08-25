@@ -892,6 +892,8 @@ LMS7002M_API int LMS7002M_mcu_write_calibration_program(LMS7002M_t *self);
 
 LMS7002M_API int LMS7002M_mcu_calibration_rx(LMS7002M_t *self, float clk, float bw);
 
+LMS7002M_API int LMS7002M_mcu_calibration_tx(LMS7002M_t *self, float clk, float bw);
+
 #ifdef __cplusplus
 }
 #endif

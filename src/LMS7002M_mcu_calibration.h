@@ -1060,3 +1060,4 @@ const char* mcu_calibration_status[MCU_CALIBRATION_STATUS_COUNT] =
     "Rx CFB_TIA_RFE range limit reached",
     "Tx RCAL_LPF range limit reached,"
 };
+#define MCU_NO_ERROR 0

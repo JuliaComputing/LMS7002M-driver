@@ -140,16 +140,11 @@ int LMS7002M_mcu_wait(LMS7002M_t *self, unsigned int timeout_ms)
     unsigned short value = 0;
     while (timeout_ms > 0) {
         value = LMS7002M_spi_read(self, LMS_MCU_P1_REG) & 0xFF;
-        if (value != 0xFF) {
-            LMS7_logf(LMS7_DEBUG, "break with value %d", value);
+        if (value != 0xFF)
             break;
-        }
 
         usleep(1000);
         timeout_ms -= 1;
-        if (timeout_ms == 0) {
-            LMS7_logf(LMS7_ERROR, "Timeout waiting for MCU procedure");
-        }
     }
 
     // return SPI control to PC
@@ -165,10 +160,9 @@ int LMS7002M_mcu_write_calibration_program(LMS7002M_t *self)
 {
     LMS7002M_mcu_run_procedure(self, MCU_FUNCTION_GET_PROGRAM_ID);
     int mcuID = LMS7002M_mcu_wait(self, 10);
-    LMS7_logf(LMS7_DEBUG, "Initial MCU program ID: %d (expected %d)", mcuID, MCU_ID_CALIBRATIONS_SINGLE_IMAGE);
 
     if (mcuID != MCU_ID_CALIBRATIONS_SINGLE_IMAGE) {
-        LMS7_logf(LMS7_DEBUG, "Programming MCU");
+        LMS7_logf(LMS7_DEBUG, "Programming MCU (program ID was %d, expected %d)", mcuID, MCU_ID_CALIBRATIONS_SINGLE_IMAGE);
 
         LMS7002M_mcu_write_program(self, MCU_SRAM, mcu_program_lms7_dc_iq_calibration_bin, MCU_PROGRAM_SIZE);
 
@@ -202,11 +196,48 @@ LMS7002M_API int LMS7002M_mcu_calibration_rx(LMS7002M_t *self, float clk, float 
     LMS7002M_mcu_set_parameter(self, MCU_BW, bw);
     LMS7002M_mcu_run_procedure(self, 5);
 
-    int status = LMS7002M_mcu_wait(self, 1000);
+    int status = LMS7002M_mcu_wait(self, 10000);
+
+    int cfb_tia_rfe = LMS7002M_regs(self)->reg_0x0112_cfb_tia_rfe;
+    int ccomp_tia_rfe = LMS7002M_regs(self)->reg_0x0112_ccomp_tia_rfe;
+    int rcomp_tia_rfe = LMS7002M_regs(self)->reg_0x0114_rcomp_tia_rfe;
+    int rcc_ctl_lpfl_rbb = LMS7002M_regs(self)->reg_0x0117_rcc_ctl_lpfl_rbb;
+    int c_ctl_lpfl_rbb = LMS7002M_regs(self)->reg_0x0117_c_ctl_lpfl_rbb;
+    int rcc_ctl_lpfh_rbb = LMS7002M_regs(self)->reg_0x0116_rcc_ctl_lpfh_rbb;
+    LMS7_logf(LMS7_DEBUG, "Rx filter BW: %0.f MHz, CFB_TIA: %i, CCOMP: %i, RCOMP: %i, "
+        "RCTL_LPFL: %i, RCTL_LPFH: %i, C_CTL_LPFL: %i",
+        bw/1e6, cfb_tia_rfe, ccomp_tia_rfe, rcomp_tia_rfe, rcc_ctl_lpfl_rbb,
+        rcc_ctl_lpfh_rbb, c_ctl_lpfl_rbb);
+
     if (status != 0) {
-        LMS7_logf(LMS7_ERROR, "Could not set MCU parameter: %s", status_message(status));
+        LMS7_logf(LMS7_ERROR, "MCU Rx calibration failed: %s", status_message(status));
+        return -1;
+    }
+    return 0;
+}
+
+LMS7002M_API int LMS7002M_mcu_calibration_tx(LMS7002M_t *self, float clk, float bw)
+{
+    if (LMS7002M_mcu_write_calibration_program(self)) {
+        LMS7_logf(LMS7_ERROR, "Failed to write MCU calibration program");
         return -1;
     }
 
+    LMS7002M_mcu_set_parameter(self, MCU_REF_CLK, clk);
+    LMS7002M_mcu_set_parameter(self, MCU_BW, bw);
+    LMS7002M_mcu_run_procedure(self, 6);
+
+    int status = LMS7002M_mcu_wait(self, 10000);
+
+    int rcal_lpflad_tbb = LMS7002M_regs(self)->reg_0x0109_rcal_lpflad_tbb;
+    int ccal_lpflad_tbb = LMS7002M_regs(self)->reg_0x010a_ccal_lpflad_tbb;
+    int rcal_lpfh_tbb = LMS7002M_regs(self)->reg_0x0109_rcal_lpfh_tbb;
+    LMS7_logf(LMS7_DEBUG, "Tx filter BW: %.0f MHz, RCAL_LPFLAD: %i, CCAL_LPFLAD: %i, RCAL_LPFH: %i",
+        bw/1e6, rcal_lpflad_tbb, ccal_lpflad_tbb, rcal_lpfh_tbb);
+
+    if (status != MCU_NO_ERROR) {
+        LMS7_logf(LMS7_ERROR, "MCU Tx calibration failed: %s", status_message(status));
+        return -1;
+    }
     return 0;
 }
