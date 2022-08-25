@@ -192,13 +192,15 @@ int LMS7002M_load_ini(LMS7002M_t *self, const char *path)
         //parse ini sections
         if (line[0] == '[')
         {
-            if (strcmp(line, "[LMS7002 registers ch.A]") == 0)
+            if (strcmp(line, "[LMS7002 registers ch.A]") == 0 ||
+                strcmp(line, "[lms7002_registers_a]") == 0)
             {
                 LMS7_logf(LMS7_INFO, "Found section %s", line);
                 write_reg_ok = true;
                 chan = LMS_CHA;
             }
-            else if (strcmp(line, "[LMS7002 registers ch.B]") == 0)
+            else if (strcmp(line, "[LMS7002 registers ch.B]") == 0 ||
+                     strcmp(line, "[lms7002_registers_b]") == 0)
             {
                 LMS7_logf(LMS7_INFO, "Found section %s", line);
                 write_reg_ok = true;
