@@ -606,6 +606,9 @@ LMS7002M_API void LMS7002M_tbb_enable_loopback(LMS7002M_t *self, const LMS7002M_
  */
 LMS7002M_API int LMS7002M_tbb_set_filter_bw(LMS7002M_t *self, const LMS7002M_chan_t channel, const double bw, double *bwactual);
 
+// Quick way to bypass all the junk in the TxTSP
+LMS7002M_API int LMS7002M_tbb_bypass(LMS7002M_t *self, const LMS7002M_chan_t channel);
+
 //=====================================================================//
 // TRF (transmit RF frontend)
 //=====================================================================//
