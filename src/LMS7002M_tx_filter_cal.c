@@ -163,20 +163,6 @@ static int tx_cal_init(LMS7002M_t *self, const LMS7002M_chan_t channel)
     return status;
 }
 
-int LMS7002M_tbb_bypass(LMS7002M_t *self, const LMS7002M_chan_t channel) {
-    LMS7002M_set_mac_ch(self, channel);
-    LMS7002M_regs(self)->reg_0x0208_cmix_byp = 1;
-    LMS7002M_regs(self)->reg_0x0208_isinc_byp = 1;
-    LMS7002M_regs(self)->reg_0x0208_gfir3_byp = 1;
-    LMS7002M_regs(self)->reg_0x0208_gfir2_byp = 1;
-    LMS7002M_regs(self)->reg_0x0208_gfir1_byp = 1;
-    LMS7002M_regs(self)->reg_0x0208_dc_byp = 1;
-    LMS7002M_regs(self)->reg_0x0208_gc_byp = 1;
-    LMS7002M_regs(self)->reg_0x0208_ph_byp = 1;
-    LMS7002M_regs_spi_write(self, 0x0208);
-    return 0;
-}
-
 /***********************************************************************
  * Perform TBB LPFS5 filter calibration
  **********************************************************************/
