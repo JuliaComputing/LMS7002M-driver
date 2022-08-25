@@ -868,6 +868,30 @@ LMS7002M_API double LMS7002M_rfe_set_loopback_lna(LMS7002M_t *self, const LMS700
  */
 LMS7002M_API double LMS7002M_rfe_set_tia(LMS7002M_t *self, const LMS7002M_chan_t channel, const double gain);
 
+typedef enum
+{
+    MCU_EEPROM_SRAM = 1,
+    MCU_SRAM = 2,
+} LMS7002M_mcu_progmode_t;
+
+LMS7002M_API int LMS7002M_mcu_write_program(LMS7002M_t *self, const LMS7002M_mcu_progmode_t mode, const uint8_t* program, size_t program_size);
+
+typedef enum
+{
+    MCU_REF_CLK,
+    MCU_BW,
+} LMS7002M_mcu_param_t;
+
+LMS7002M_API int LMS7002M_mcu_set_parameter(LMS7002M_t *self, LMS7002M_mcu_param_t param, float value);
+
+LMS7002M_API void LMS7002M_mcu_run_procedure(LMS7002M_t *self, uint8_t procedure);
+
+LMS7002M_API int LMS7002M_mcu_wait(LMS7002M_t *self, unsigned int timeout_ms);
+
+LMS7002M_API int LMS7002M_mcu_write_calibration_program(LMS7002M_t *self);
+
+LMS7002M_API int LMS7002M_mcu_calibration_rx(LMS7002M_t *self, float clk, float bw);
+
 #ifdef __cplusplus
 }
 #endif
