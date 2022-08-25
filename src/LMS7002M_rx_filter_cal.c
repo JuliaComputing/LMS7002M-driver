@@ -82,7 +82,7 @@ static int rx_cal_loop(
         if (rssi_value < rssi_value_50k*0.7071 && adjust > 0) break;
 
         int int_rssi_value_50k_sqrt2 = (int) (rssi_value_50k*0.7071);
-        LMS7_logf(LMS7_INFO, "rssi: %d (thresh: %d)", rssi_value, int_rssi_value_50k_sqrt2);
+        //LMS7_logf(LMS7_INFO, "rssi: %d (thresh: %d)", rssi_value, int_rssi_value_50k_sqrt2);
         if (*reg_ptr == 0 || *reg_ptr == reg_max)
         {
             LMS7_logf(LMS7_ERROR, "failed to cal %s -> %d", reg_name, *reg_ptr);

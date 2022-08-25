@@ -64,9 +64,6 @@ void LMS7002M_regs_spi_write(LMS7002M_t *self, const int addr)
 {
     int value = LMS7002M_regs_get(self->regs, addr);
     LMS7002M_spi_write(self, addr, value);
-    if (addr == 0x112 || addr == 0x117 || addr == 0x109) {
-        LMS7_logf(LMS7_WARNING, "[SPI WRITE] 0x%x <- 0x%x\n", addr, value);
-    }
 
     //for CHAB mode: duplicate to the CHB register shadow
     if (self->regs->reg_0x0020_mac == REG_0X0020_MAC_CHAB)

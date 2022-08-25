@@ -99,6 +99,7 @@ void LMS7002M_configure_lml_port(LMS7002M_t *self, const LMS7002M_port_t portNo,
 {
     //LML is in global register space
     LMS7002M_set_mac_ch(self, LMS_CHAB);
+    printf("Configuring LML port %d for direction %d\n", portNo, direction);
 
     //set TRXIQ on both ports
     if (portNo == LMS_PORT1)
