@@ -865,6 +865,88 @@ LMS7002M_API double LMS7002M_rfe_set_loopback_lna(LMS7002M_t *self, const LMS700
  */
 LMS7002M_API double LMS7002M_rfe_set_tia(LMS7002M_t *self, const LMS7002M_chan_t channel, const double gain);
 
+//=====================================================================//
+// MCU (embedded microcontroller)
+//=====================================================================//
+
+//! programming mode constants
+typedef enum
+{
+    MCU_EEPROM_SRAM = 1,
+    MCU_SRAM = 2,
+} LMS7002M_mcu_progmode_t;
+
+//! parameter type constants
+typedef enum
+{
+    MCU_REF_CLK,
+    MCU_BW,
+} LMS7002M_mcu_param_t;
+
+/*!
+ * Write a program to the embedded microcontroller.
+ * \param self an instance of the LMS7002M driver
+ * \param mode the programming mode indicating what to program
+ * \param program a pointer to the program
+ * \param program_size the length of the program in bytes
+ * \return 0 for success otherwise failure
+ */
+LMS7002M_API int LMS7002M_mcu_write_program(LMS7002M_t *self, const LMS7002M_mcu_progmode_t mode, const uint8_t* program, size_t program_size);
+
+/*!
+ * Run a procedure on the embedded microcontroller.
+ * \param self an instance of the LMS7002M driver
+ * \param procedure the entry of the procedure in the program table
+ */
+LMS7002M_API void LMS7002M_mcu_run_procedure(LMS7002M_t *self, uint8_t procedure);
+
+/*!
+ * Wait for the microcontroller to finish executing a procedure.
+ * \param self an instance of the LMS7002M driver
+ * \param timeout_ms the maximum time to wait in milliseconds
+ * \return -1 for timeout, and the procedure result otherwise
+ */
+LMS7002M_API int LMS7002M_mcu_wait(LMS7002M_t *self, unsigned int timeout_ms);
+
+/*!
+ * Set a parameter on the embedded microcontroller. This can be used for
+ * procedures that requires inputs, like the calibration program.
+ * \param self an instance of the LMS7002M driver
+ * \param param the parameter to write
+ * \param value the parameter to write
+ * \return 0 for success otherwise failure
+ */
+LMS7002M_API int LMS7002M_mcu_set_parameter(LMS7002M_t *self, LMS7002M_mcu_param_t param, float value);
+
+//=====================================================================//
+// MCU-based calibration
+//=====================================================================//
+
+/*!
+ * Write the LMS7002M calibration program to the embedded microcontroller.
+ * \param self an instance of the LMS7002M driver
+ * \return 0 for success otherwise failure
+ */
+LMS7002M_API int LMS7002M_mcu_write_calibration_program(LMS7002M_t *self);
+
+/*!
+ * Use the embedded microcontroller to calibrate the RX analog filter.
+ * \param self an instance of the LMS7002M driver
+ * \param clk the reference clock
+ * \param self the bandwidth to calibrate for
+ * \return 0 for success otherwise failure
+ */
+LMS7002M_API int LMS7002M_mcu_calibration_rx(LMS7002M_t *self, float clk, float bw);
+
+/*!
+ * Use the embedded microcontroller to calibrate the TX analog filter.
+ * \param self an instance of the LMS7002M driver
+ * \param clk the reference clock
+ * \param self the bandwidth to calibrate for
+ * \return 0 for success otherwise failure
+ */
+LMS7002M_API int LMS7002M_mcu_calibration_tx(LMS7002M_t *self, float clk, float bw);
+
 #ifdef __cplusplus
 }
 #endif
