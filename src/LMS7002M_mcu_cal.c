@@ -1114,6 +1114,16 @@ const char* status_message(int status)
 
 LMS7002M_API int LMS7002M_mcu_calibration_rx(LMS7002M_t *self, float clk, float bw)
 {
+    if (clk < 10e6 || clk > 52e6) {
+        LMS7_logf(LMS7_ERROR, "Reference clock out of range");
+        return -1;
+    }
+
+    if (bw < 1.4e6 || clk > 130e6) {
+        LMS7_logf(LMS7_ERROR, "Tx bandwidth out of range");
+        return -1;
+    }
+
     if (LMS7002M_mcu_write_calibration_program(self)) {
         LMS7_logf(LMS7_ERROR, "Failed to write MCU calibration program");
         return -1;
@@ -1155,6 +1165,16 @@ LMS7002M_API int LMS7002M_mcu_calibration_rx(LMS7002M_t *self, float clk, float 
 
 LMS7002M_API int LMS7002M_mcu_calibration_tx(LMS7002M_t *self, float clk, float bw)
 {
+    if (clk < 10e6 || clk > 52e6) {
+        LMS7_logf(LMS7_ERROR, "Reference clock out of range");
+        return -1;
+    }
+
+    if ((bw < 5e6 || clk > 40e6) && (bw < 50e6 || clk > 130e6)) {
+        LMS7_logf(LMS7_ERROR, "Tx bandwidth out of range");
+        return -1;
+    }
+
     if (LMS7002M_mcu_write_calibration_program(self)) {
         LMS7_logf(LMS7_ERROR, "Failed to write MCU calibration program");
         return -1;
