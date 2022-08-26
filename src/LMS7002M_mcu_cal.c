@@ -1125,7 +1125,16 @@ LMS7002M_API int LMS7002M_mcu_calibration_rx(LMS7002M_t *self, float clk, float 
 
     int status = LMS7002M_mcu_wait(self, 10000);
 
-#ifndef NDEBUG
+    // synchronize registers modified by the calibration program
+    LMS7002M_regs_spi_read(self, 0x0112);
+    LMS7002M_regs_spi_read(self, 0x0117);
+    LMS7002M_regs_spi_read(self, 0x011A);
+    LMS7002M_regs_spi_read(self, 0x0116);
+    LMS7002M_regs_spi_read(self, 0x0118);
+    LMS7002M_regs_spi_read(self, 0x0114);
+    LMS7002M_regs_spi_read(self, 0x0019);
+    LMS7002M_regs_spi_read(self, 0x0115);
+
     int cfb_tia_rfe = LMS7002M_regs(self)->reg_0x0112_cfb_tia_rfe;
     int ccomp_tia_rfe = LMS7002M_regs(self)->reg_0x0112_ccomp_tia_rfe;
     int rcomp_tia_rfe = LMS7002M_regs(self)->reg_0x0114_rcomp_tia_rfe;
@@ -1136,7 +1145,6 @@ LMS7002M_API int LMS7002M_mcu_calibration_rx(LMS7002M_t *self, float clk, float 
         "RCTL_LPFL: %i, RCTL_LPFH: %i, C_CTL_LPFL: %i",
         bw/1e6, cfb_tia_rfe, ccomp_tia_rfe, rcomp_tia_rfe, rcc_ctl_lpfl_rbb,
         rcc_ctl_lpfh_rbb, c_ctl_lpfl_rbb);
-#endif
 
     if (status != 0) {
         LMS7_logf(LMS7_ERROR, "MCU Rx calibration failed: %s", status_message(status));
@@ -1158,13 +1166,18 @@ LMS7002M_API int LMS7002M_mcu_calibration_tx(LMS7002M_t *self, float clk, float 
 
     int status = LMS7002M_mcu_wait(self, 10000);
 
-#ifndef NDEBUG
+    // synchronize registers modified by the calibration program
+    LMS7002M_regs_spi_read(self, 0x0105);
+    LMS7002M_regs_spi_read(self, 0x0106);
+    LMS7002M_regs_spi_read(self, 0x0109);
+    LMS7002M_regs_spi_read(self, 0x010A);
+    LMS7002M_regs_spi_read(self, 0x010B);
+
     int rcal_lpflad_tbb = LMS7002M_regs(self)->reg_0x0109_rcal_lpflad_tbb;
     int ccal_lpflad_tbb = LMS7002M_regs(self)->reg_0x010a_ccal_lpflad_tbb;
     int rcal_lpfh_tbb = LMS7002M_regs(self)->reg_0x0109_rcal_lpfh_tbb;
     LMS7_logf(LMS7_DEBUG, "Tx filter BW: %.0f MHz, RCAL_LPFLAD: %i, CCAL_LPFLAD: %i, RCAL_LPFH: %i",
         bw/1e6, rcal_lpflad_tbb, ccal_lpflad_tbb, rcal_lpfh_tbb);
-#endif
 
     if (status != MCU_NO_ERROR) {
         LMS7_logf(LMS7_ERROR, "MCU Tx calibration failed: %s", status_message(status));
