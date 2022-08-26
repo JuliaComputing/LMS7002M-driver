@@ -17,16 +17,19 @@
 #define MCU_ID_DC_IQ_CALIBRATIONS 0x01
 #define MCU_ID_CALIBRATIONS_SINGLE_IMAGE 0x05
 
+#define MCU_FUNCTION_HALT 0
 #define MCU_FUNCTION_CALIBRATE_TX 1
 #define MCU_FUNCTION_CALIBRATE_RX 2
 #define MCU_FUNCTION_UPDATE_BW 3
 #define MCU_FUNCTION_UPDATE_REF_CLK 4
-#define MCU_FUNCTION_TUNE_TX_FILTER 5
-#define MCU_FUNCTION_TUNE_RX_FILTER 6
+#define MCU_FUNCTION_TUNE_RX_FILTER 5
+#define MCU_FUNCTION_TUNE_TX_FILTER 6
+#define MCU_FUNCTION_PROXY_WRITE 7
+#define MCU_FUNCTION_PROXY_READ 8
 #define MCU_FUNCTION_UPDATE_EXT_LOOPBACK_PAIR 9
+#define MCU_FUNCTION_AGC 10
 #define MCU_FUNCTION_CALIBRATE_TX_EXTLOOPB 17
 #define MCU_FUNCTION_CALIBRATE_RX_EXTLOOPB 18
-#define MCU_FUNCTION_AGC 10
 #define MCU_FUNCTION_GET_PROGRAM_ID 255
 
 // official calibration program taken from
@@ -1118,7 +1121,7 @@ LMS7002M_API int LMS7002M_mcu_calibration_rx(LMS7002M_t *self, float clk, float 
 
     LMS7002M_mcu_set_parameter(self, MCU_REF_CLK, clk);
     LMS7002M_mcu_set_parameter(self, MCU_BW, bw);
-    LMS7002M_mcu_run_procedure(self, 5);
+    LMS7002M_mcu_run_procedure(self, MCU_FUNCTION_TUNE_RX_FILTER);
 
     int status = LMS7002M_mcu_wait(self, 10000);
 
@@ -1151,7 +1154,7 @@ LMS7002M_API int LMS7002M_mcu_calibration_tx(LMS7002M_t *self, float clk, float 
 
     LMS7002M_mcu_set_parameter(self, MCU_REF_CLK, clk);
     LMS7002M_mcu_set_parameter(self, MCU_BW, bw);
-    LMS7002M_mcu_run_procedure(self, 6);
+    LMS7002M_mcu_run_procedure(self, MCU_FUNCTION_TUNE_TX_FILTER);
 
     int status = LMS7002M_mcu_wait(self, 10000);
 
