@@ -12,16 +12,11 @@
 
 #include "LMS7002M_impl.h"
 #include "LMS7002M_filter_cal.h"
-#include <LMS7002M/LMS7002M_time.h>
-
-static long long cal_rssi_sleep_ticks(void)
-{
-    return (LMS7_time_tps())/1000; //1 ms -> ticks
-}
+#include <unistd.h>
 
 uint16_t cal_read_rssi(LMS7002M_t *self, const LMS7002M_chan_t channel)
 {
-    LMS7_sleep_for(cal_rssi_sleep_ticks());
+    usleep(1000);
     return LMS7002M_rxtsp_read_rssi(self, channel);
 }
 
