@@ -13,7 +13,6 @@
 #include "LMS7002M_impl.h"
 #include "LMS7002M_filter_cal.h"
 #include <LMS7002M/LMS7002M_logger.h>
-#include <LMS7002M/LMS7002M_time.h>
 #include <string.h> //memcpy
 
 /***********************************************************************

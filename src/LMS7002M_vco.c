@@ -12,8 +12,8 @@
 #include <stdlib.h>
 #include "LMS7002M_impl.h"
 #include "LMS7002M_vco.h"
-#include <LMS7002M/LMS7002M_time.h>
 #include <LMS7002M/LMS7002M_logger.h>
+#include <unistd.h>
 
 static void LMS7002M_read_vco_cmp(LMS7002M_t *self, const int vco_cmp_addr)
 {
@@ -22,7 +22,7 @@ static void LMS7002M_read_vco_cmp(LMS7002M_t *self, const int vco_cmp_addr)
     LMS7002M_regs_spi_read(self, vco_cmp_addr);
 
     //sleep while the comparator value settles
-    LMS7_sleep_for(LMS7_time_tps()/1000); //1 ms -> ticks
+    usleep(1000);
 
     //final read of the comparator after settling
     LMS7002M_regs_spi_read(self, vco_cmp_addr);
