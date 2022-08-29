@@ -166,10 +166,16 @@ void LMS7002M_configure_lml_port(LMS7002M_t *self, const LMS7002M_port_t portNo,
         self->regs->reg_0x002c_rxtspclk_div = (mclkDiv/2)-1;
     }
 
+    // TODO: Elliot has found that we need to invert the LML clocks
+    //       to avoid terrible spiking behavior when running a
+    //       TBB baseband loopback.
+    self->regs->reg_0x00ad_value = 0x03f3;
+
     LMS7002M_regs_spi_write(self, 0x0023);
     LMS7002M_regs_spi_write(self, 0x002A);
     LMS7002M_regs_spi_write(self, 0x002B);
     LMS7002M_regs_spi_write(self, 0x002C);
+    LMS7002M_regs_spi_write(self, 0x00AD);
 }
 
 void LMS7002M_invert_fclk(LMS7002M_t *self, const bool invert)
