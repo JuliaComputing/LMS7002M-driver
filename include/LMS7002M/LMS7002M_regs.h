@@ -732,6 +732,7 @@ struct LMS7002M_regs_struct
     int reg_0x040b_dc_reg;
     int reg_0x040c_cmix_gain;
     int reg_0x040c_cmix_sc;
+    int reg_0x040c_dc_loop_byp;
     int reg_0x040c_cmix_byp;
     int reg_0x040c_agc_byp;
     int reg_0x040c_gfir3_byp;
@@ -2103,6 +2104,7 @@ static inline void LMS7002M_regs_set(LMS7002M_regs_t *regs, const int addr, cons
     {
         regs->reg_0x040c_cmix_gain = (value >> 14) & 0x3;
         regs->reg_0x040c_cmix_sc = (value >> 13) & 0x1;
+        regs->reg_0x040c_dc_loop_byp = (value >> 8) & 0x1;
         regs->reg_0x040c_cmix_byp = (value >> 7) & 0x1;
         regs->reg_0x040c_agc_byp = (value >> 6) & 0x1;
         regs->reg_0x040c_gfir3_byp = (value >> 5) & 0x1;
@@ -3149,6 +3151,7 @@ static inline int LMS7002M_regs_get(LMS7002M_regs_t *regs, const int addr)
     {
         value |= (regs->reg_0x040c_cmix_gain & 0x3) << 14;
         value |= (regs->reg_0x040c_cmix_sc & 0x1) << 13;
+        value |= (regs->reg_0x040c_dc_loop_byp & 0x1) << 8;
         value |= (regs->reg_0x040c_cmix_byp & 0x1) << 7;
         value |= (regs->reg_0x040c_agc_byp & 0x1) << 6;
         value |= (regs->reg_0x040c_gfir3_byp & 0x1) << 5;
