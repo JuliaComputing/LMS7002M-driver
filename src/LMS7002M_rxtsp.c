@@ -27,6 +27,8 @@ void LMS7002M_rxtsp_enable(LMS7002M_t *self, const LMS7002M_chan_t channel, cons
 
     self->regs->reg_0x040a_agc_mode = REG_0X040A_AGC_MODE_BYPASS;
 
+    // This seems to really mess us up
+    //self->regs->reg_0x040c_dc_loop_byp = 1;
     self->regs->reg_0x040c_cmix_byp = 1;
     self->regs->reg_0x040c_agc_byp = 1;
     self->regs->reg_0x040c_gfir3_byp = 1;
