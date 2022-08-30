@@ -51,7 +51,7 @@ void LMS7002M_rfe_set_path(LMS7002M_t *self, const LMS7002M_chan_t channel, cons
     switch (path)
     {
     case LMS7002M_RFE_LB1:
-        self->regs->reg_0x010d_sel_path_rfe = REG_0X010D_SEL_PATH_RFE_LNAW;
+        self->regs->reg_0x010d_sel_path_rfe = REG_0X010D_SEL_PATH_RFE_LNAH;
         self->regs->reg_0x010c_pd_rloopb_1_rfe = 0;
         self->regs->reg_0x010d_en_inshsw_lb1_rfe = 0;
         enb_trf_loopback = true;
