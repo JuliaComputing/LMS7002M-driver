@@ -80,6 +80,7 @@ int LMS7002M_set_data_clock(LMS7002M_t *self, const double fref, const double fo
     self->regs->reg_0x0086_pd_vco_cgen = 0; //enable
     self->regs->reg_0x0086_pd_vco_comp_cgen = 0; //enable
     self->regs->reg_0x0086_en_g_cgen = 1;
+    self->regs->reg_0x0086_en_adcclkh_clkgn = 0; // Tx/Rx same samplerate
     self->regs->reg_0x0086_en_coarse_cklgen = 0;
     self->regs->reg_0x008b_coarse_start_cgen = 0;
     self->regs->reg_0x0086_spdup_vco_cgen = 1; //fast settling
@@ -98,6 +99,10 @@ int LMS7002M_set_data_clock(LMS7002M_t *self, const double fref, const double fo
     //program the feedback divider
     self->regs->reg_0x0089_sel_sdmclk_cgen = REG_0X0089_SEL_SDMCLK_CGEN_CLK_DIV;
     self->regs->reg_0x0089_div_outch_cgen = (fdiv/2)-1;
+
+    //program txtsp/rxtsp to operate at the same samplerate
+    self->regs->reg_0x0089_clkh_ov_clkl_cgen = 2;
+
     LMS7002M_regs_spi_write(self, 0x0089);
 
     //select the correct CSW for this VCO frequency
