@@ -578,6 +578,13 @@ LMS7002M_API void LMS7002M_tbb_enable(LMS7002M_t *self, const LMS7002M_chan_t ch
 LMS7002M_API void LMS7002M_tbb_set_path(LMS7002M_t *self, const LMS7002M_chan_t channel, const int path);
 
 /*!
+ * Get the data path for the TX baseband.
+ * \param self an instance of the LMS7002M driver
+ * \param channel the channel LMS_CHA or LMS_CHB
+ */
+LMS7002M_API int LMS7002M_tbb_get_path(LMS7002M_t *self, const LMS7002M_chan_t channel);
+
+/*!
  * Configure the test input signal to the TX BB component.
  * The default is disabled (LMS7002M_TBB_TSTIN_OFF).
  * \param self an instance of the LMS7002M driver
@@ -782,6 +789,13 @@ LMS7002M_API void LMS7002M_rbb_enable(LMS7002M_t *self, const LMS7002M_chan_t ch
  * \param path the input path (see LMS7002M_RBB_* defines)
  */
 LMS7002M_API void LMS7002M_rbb_set_path(LMS7002M_t *self, const LMS7002M_chan_t channel, const int path);
+
+/*!
+ * Get the current data path for the RX baseband.
+ * \param self an instance of the LMS7002M driver
+ * \param channel the channel LMS_CHA or LMS_CHB
+ */
+LMS7002M_API int LMS7002M_rbb_get_path(LMS7002M_t *self, const LMS7002M_chan_t channel);
 
 /*!
  * Configure the test output signal from the RX BB component.

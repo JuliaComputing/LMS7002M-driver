@@ -77,6 +77,39 @@ void LMS7002M_rbb_set_path(LMS7002M_t *self, const LMS7002M_chan_t channel, cons
     LMS7002M_regs_spi_write(self, 0x0118);
 }
 
+int LMS7002M_rbb_get_path(LMS7002M_t *self, const LMS7002M_chan_t channel)
+{
+    LMS7002M_set_mac_ch(self, channel);
+
+    int path = -1;
+    switch (self->regs->reg_0x0118_input_ctl_pga_rbb) {
+        case REG_0X0118_INPUT_CTL_PGA_RBB_BYPASS:
+            path = LMS7002M_RBB_BYP;
+            break;
+        case REG_0X0118_INPUT_CTL_PGA_RBB_TBB:
+            path = LMS7002M_RBB_LB_BYP;
+            break;
+        case REG_0X0118_INPUT_CTL_PGA_RBB_LPFL:
+            if (self->regs->reg_0x0115_en_lb_lpfl_rbb == 1) {
+                path = LMS7002M_RBB_LB_LBF;
+            } else {
+                path = LMS7002M_RBB_LBF;
+            }
+            break;
+        case REG_0X0118_INPUT_CTL_PGA_RBB_LPFH:
+            if (self->regs->reg_0x0115_en_lb_lpfh_rbb == 1) {
+                path = LMS7002M_RBB_LB_HBF;
+            } else {
+                path = LMS7002M_RBB_HBF;
+            }
+            break;
+        case REG_0X0118_INPUT_CTL_PGA_RBB_PDET:
+            path = LMS7002M_RBB_PDET;
+            break;
+    }
+    return path;
+}
+
 void LMS7002M_rbb_set_test_out(LMS7002M_t *self, const LMS7002M_chan_t channel, const bool enable)
 {
     LMS7002M_set_mac_ch(self, channel);
