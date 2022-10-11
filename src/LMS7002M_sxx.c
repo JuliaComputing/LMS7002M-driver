@@ -178,7 +178,7 @@ int LMS7002M_set_lo_freq(LMS7002M_t *self, const LMS7002M_dir_t direction, const
     //failed to tune any VCO
     if (SEL_VCO_best == -1)
     {
-        LMS7_log(LMS7_ERROR, "VCO select FAIL");
+        LMS7_log(LMS7_ERROR, "sxx: VCO select FAIL");
         return -3;
     }
     LMS7_logf(LMS7_DEBUG, "Choosing SEL_VCO = %d", SEL_VCO_best);
