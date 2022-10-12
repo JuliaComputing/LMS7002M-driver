@@ -150,7 +150,7 @@ int LMS7002M_tune_vco(
     }
     else
     {
-        LMS7_log(LMS7_DEBUG, "VCO select FAIL");
+        LMS7_log(LMS7_DEBUG, "tune vco: VCO select FAIL");
         return -1;
     }
     return 0;
