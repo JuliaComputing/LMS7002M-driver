@@ -937,7 +937,7 @@ LMS7002M_API int LMS7002M_mcu_write_calibration_program(LMS7002M_t *self);
  * \param self the bandwidth to calibrate for
  * \return 0 for success otherwise failure
  */
-LMS7002M_API int LMS7002M_mcu_calibration_rx(LMS7002M_t *self, float clk, float bw);
+LMS7002M_API int LMS7002M_mcu_calibration_rx(LMS7002M_t *self, LMS7002M_chan_t channel, float clk, float bw);
 
 /*!
  * Use the embedded microcontroller to calibrate the TX analog filter.
@@ -946,7 +946,7 @@ LMS7002M_API int LMS7002M_mcu_calibration_rx(LMS7002M_t *self, float clk, float 
  * \param self the bandwidth to calibrate for
  * \return 0 for success otherwise failure
  */
-LMS7002M_API int LMS7002M_mcu_calibration_tx(LMS7002M_t *self, float clk, float bw);
+LMS7002M_API int LMS7002M_mcu_calibration_tx(LMS7002M_t *self, LMS7002M_chan_t channel, float clk, float bw);
 
 #ifdef __cplusplus
 }
