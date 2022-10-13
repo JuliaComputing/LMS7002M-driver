@@ -1112,8 +1112,11 @@ const char* status_message(int status)
         return mcu_calibration_status[status];
 }
 
-LMS7002M_API int LMS7002M_mcu_calibration_rx(LMS7002M_t *self, float clk, float bw)
+LMS7002M_API int LMS7002M_mcu_calibration_rx(LMS7002M_t *self, LMS7002M_chan_t channel, float clk, float bw)
 {
+
+    LMS7002M_set_mac_ch(self, channel);
+
     if (clk < 10e6 || clk > 52e6) {
         LMS7_logf(LMS7_ERROR, "Reference clock out of range");
         return -1;
@@ -1163,8 +1166,11 @@ LMS7002M_API int LMS7002M_mcu_calibration_rx(LMS7002M_t *self, float clk, float 
     return 0;
 }
 
-LMS7002M_API int LMS7002M_mcu_calibration_tx(LMS7002M_t *self, float clk, float bw)
+LMS7002M_API int LMS7002M_mcu_calibration_tx(LMS7002M_t *self, LMS7002M_chan_t channel, float clk, float bw)
 {
+
+    LMS7002M_set_mac_ch(self, channel);
+
     if (clk < 10e6 || clk > 52e6) {
         LMS7_logf(LMS7_ERROR, "Reference clock out of range");
         return -1;
