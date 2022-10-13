@@ -65,6 +65,29 @@ void LMS7002M_tbb_set_path(LMS7002M_t *self, const LMS7002M_chan_t channel, cons
     LMS7002M_regs_spi_write(self, 0x010A);
 }
 
+
+int LMS7002M_tbb_get_path(LMS7002M_t *self, const LMS7002M_chan_t channel)
+{
+    LMS7002M_set_mac_ch(self, channel);
+
+    if (self->regs->reg_0x0105_pd_lpfh_tbb == 0) {
+        return LMS7002M_TBB_HBF;
+    }
+    if (self->regs->reg_0x0105_pd_lpfs5_tbb == 0 &&
+        self->regs->reg_0x0105_pd_lpflad_tbb == 0 &&
+        self->regs->reg_0x010a_bypladder_tbb == 0) {
+        return LMS7002M_TBB_LBF;
+    }
+    if (self->regs->reg_0x0105_pd_lpflad_tbb == 0 &&
+        self->regs->reg_0x010a_bypladder_tbb == 0) {
+        return LMS7002M_TBB_LAD;
+    }
+    if (self->regs->reg_0x0105_pd_lpfs5_tbb == 0) {
+        return LMS7002M_TBB_S5;
+    }
+    return LMS7002M_TBB_BYP;
+}
+
 void LMS7002M_tbb_set_test_in(LMS7002M_t *self, const LMS7002M_chan_t channel, const int path)
 {
     LMS7002M_set_mac_ch(self, channel);
