@@ -14,6 +14,7 @@
 #include "LMS7002M_vco.h"
 #include <LMS7002M/LMS7002M_logger.h>
 #include <unistd.h>
+#include <string.h>
 
 static void LMS7002M_read_vco_cmp(LMS7002M_t *self, const int vco_cmp_addr)
 {
@@ -109,20 +110,25 @@ int LMS7002M_tune_vco(
     
     if (LMS7_get_log_level() >= LMS7_DEBUG){
 
+        char output[1024] = {'\0'};
         // Scan the comparators in the opposite direction to check for hyseresis
         scan_csw(self, -1, vco_csw_reg, csw_decending, vco_cmpho_reg, vco_cmplo_reg, vco_csw_addr, vco_cmp_addr);
 
-        printf("\nAscending:\n");
+        strcat(output, "Ascending comparator vals:\n");
         for (int i = 0; i < 256; i++)
         {
-            printf(" %i", csw_ascending[i]);
+            char* c = csw_ascending[i] == 0 ? "0" : csw_ascending[i] == 2 ? "2" : "3";
+            strcat(output+strlen(output), c);
         }
-        printf("\nDecending:\n");
+        LMS7_log(LMS7_DEBUG, output);
+        memset(output, '\0', sizeof(output));
+        strcat(output, "Decending comparator vals:\n");
         for (int i = 0; i < 256; i++)
         {
-            printf(" %i", csw_decending[i]);
+            char* c = csw_decending[i] == 0 ? "0" : csw_decending[i] == 2 ? "2" : "3";
+            strcat(output+strlen(output), c);
         }
-        printf("\n");
+        LMS7_log(LMS7_DEBUG, output);
     }
 
     int high_ct = 0;
