@@ -118,6 +118,17 @@ double LMS7002M_rfe_set_lna(LMS7002M_t *self, const LMS7002M_chan_t channel, con
     return val + gmax;
 }
 
+double LMS7002M_rfe_set_lna_dist(LMS7002M_t *self, const LMS7002M_chan_t channel, const double gain)
+{
+    LMS7002M_set_mac_ch(self, channel);
+
+    self->regs->reg_0x0113_g_lna_rfe = (int)gain;
+
+    LMS7002M_regs_spi_write(self, 0x0113);
+
+    return gain;
+}
+
 double LMS7002M_rfe_set_loopback_lna(LMS7002M_t *self, const LMS7002M_chan_t channel, const double gain)
 {
     const double gmax = 40;
@@ -161,4 +172,15 @@ double LMS7002M_rfe_set_tia(LMS7002M_t *self, const LMS7002M_chan_t channel, con
     LMS7002M_regs_spi_write(self, 0x0113);
 
     return val + gmax;
+}
+
+double LMS7002M_rfe_set_tia_dist(LMS7002M_t *self, const LMS7002M_chan_t channel, const double gain)
+{
+    LMS7002M_set_mac_ch(self, channel);
+
+    self->regs->reg_0x0113_g_tia_rfe = gain;
+
+    LMS7002M_regs_spi_write(self, 0x0113);
+
+    return gain;
 }
