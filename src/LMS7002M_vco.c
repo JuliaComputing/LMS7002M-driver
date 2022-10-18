@@ -106,20 +106,24 @@ int LMS7002M_tune_vco(
     int csw_decending[256];
 
     scan_csw(self, 1, vco_csw_reg, csw_ascending, vco_cmpho_reg, vco_cmplo_reg, vco_csw_addr, vco_cmp_addr);
-    scan_csw(self, -1, vco_csw_reg, csw_decending, vco_cmpho_reg, vco_cmplo_reg, vco_csw_addr, vco_cmp_addr);
+    
+    if (LMS7_get_log_level() >= LMS7_DEBUG){
 
+        // Scan the comparators in the opposite direction to check for hyseresis
+        scan_csw(self, -1, vco_csw_reg, csw_decending, vco_cmpho_reg, vco_cmplo_reg, vco_csw_addr, vco_cmp_addr);
 
-    printf("\nAscending:\n");
-    for (int i = 0; i < 256; i++)
-    {
-        printf(" %i", csw_ascending[i]);
+        printf("\nAscending:\n");
+        for (int i = 0; i < 256; i++)
+        {
+            printf(" %i", csw_ascending[i]);
+        }
+        printf("\nDecending:\n");
+        for (int i = 0; i < 256; i++)
+        {
+            printf(" %i", csw_decending[i]);
+        }
+        printf("\n");
     }
-    printf("\nDecending:\n");
-    for (int i = 0; i < 256; i++)
-    {
-        printf(" %i", csw_decending[i]);
-    }
-    printf("\n");
 
     int high_ct = 0;
     int low_ct = 0;
@@ -127,11 +131,7 @@ int LMS7002M_tune_vco(
         if (csw_ascending[i] == 3) high_ct++;
         if (csw_ascending[i] == 0) low_ct++;
     }
-    printf("high_ct=%i, low_ct=%i\n", high_ct, low_ct);
-
-
-    //LMS7_logf(LMS7_DEBUG, "CSW results: lo: %i %i, mid: %i %i, hi: %i %i",
-    //    csw_lo[0], csw_lo[1], csw_mid[0], csw_mid[1], csw_hi[0], csw_hi[1]);
+    LMS7_logf(LMS7_DEBUG, "high_ct=%i, low_ct=%i\n", high_ct, low_ct);
 
     if (high_ct == 256)
     {
