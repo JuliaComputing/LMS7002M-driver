@@ -57,6 +57,11 @@ void LMS7_set_log_level(const LMS7_log_level_t level)
     _log_level = level;
 }
 
+LMS7002M_API LMS7_log_level_t LMS7_get_log_level()
+{
+    return _log_level;
+}
+
 void LMS7_log(const LMS7_log_level_t level, const char *message)
 {
     if (level > _log_level) return;

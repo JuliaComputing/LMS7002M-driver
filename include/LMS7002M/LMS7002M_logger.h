@@ -38,6 +38,11 @@ typedef enum
 LMS7002M_API void LMS7_set_log_level(const LMS7_log_level_t level);
 
 /*!
+ * Get module/process-wide logger level.
+ */
+LMS7002M_API LMS7_log_level_t LMS7_get_log_level();
+
+/*!
  * Send a message to the registered logger.
  * \param level a possible logging level
  * \param message a logger message string
