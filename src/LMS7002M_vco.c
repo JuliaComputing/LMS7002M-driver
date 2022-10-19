@@ -184,6 +184,10 @@ int LMS7002M_tune_vco(
 
     if (*vco_cmpho_reg != 0 && *vco_cmplo_reg == 0)
     {
+        LMS7_logf(LMS7_DEBUG, "lowest CSW_VCO %i, highest CSW_VCO %i, CSW_VCO %i", csw_lowest, csw_highest, *vco_csw_reg);
+    }
+    else
+    {
         //set the midpoint of the search
         *vco_csw_reg = (csw_highest_fallback+csw_lowest_fallback)/2;
         LMS7002M_regs_spi_write(self, vco_csw_addr);
@@ -192,10 +196,6 @@ int LMS7002M_tune_vco(
 
         //check that the vco selection was successful
         LMS7002M_read_vco_cmp(self, vco_cmp_addr);
-    }
-    else
-    {
-        LMS7_logf(LMS7_DEBUG, "lowest CSW_VCO %i, highest CSW_VCO %i, CSW_VCO %i", csw_lowest, csw_highest, *vco_csw_reg);
     }
 
     if (*vco_cmpho_reg != 0 && *vco_cmplo_reg == 0)
