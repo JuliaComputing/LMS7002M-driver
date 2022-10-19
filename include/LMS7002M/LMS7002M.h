@@ -816,6 +816,15 @@ LMS7002M_API void LMS7002M_rbb_set_test_out(LMS7002M_t *self, const LMS7002M_cha
 LMS7002M_API double LMS7002M_rbb_set_pga(LMS7002M_t *self, const LMS7002M_chan_t channel, const double gain);
 
 /*!
+ * Set the PGA gain for the RX baseband that is distributed.
+ * \param self an instance of the LMS7002M driver
+ * \param channel the channel LMS_CHA or LMS_CHB
+ * \param gain the gain value in dB -12.0 to 19.0
+ * \return the actual gain value in dB
+ */
+LMS7002M_API double LMS7002M_rbb_set_pga_dist(LMS7002M_t *self, const LMS7002M_chan_t channel, const double gain);
+
+/*!
  * Set the RX baseband filter bandwidth.
  * The actual bandwidth will be greater than or equal to the requested bandwidth.
  * \param self an instance of the LMS7002M driver
@@ -863,6 +872,15 @@ LMS7002M_API void LMS7002M_rfe_set_path(LMS7002M_t *self, const LMS7002M_chan_t 
 LMS7002M_API double LMS7002M_rfe_set_lna(LMS7002M_t *self, const LMS7002M_chan_t channel, const double gain);
 
 /*!
+ * Set the LNA gain for the RX RF frontend that is distributed.
+ * \param self an instance of the LMS7002M driver
+ * \param channel the channel LMS_CHA or LMS_CHB
+ * \param gain the gain value in dB 0 to 30
+ * \return the actual gain value in dB
+ */
+LMS7002M_API double LMS7002M_rfe_set_lna_dist(LMS7002M_t *self, const LMS7002M_chan_t channel, const double gain);
+
+/*!
  * Set the LNA gain for the RX RF frontend (in TX loopback mode).
  * \param self an instance of the LMS7002M driver
  * \param channel the channel LMS_CHA or LMS_CHB
@@ -879,6 +897,15 @@ LMS7002M_API double LMS7002M_rfe_set_loopback_lna(LMS7002M_t *self, const LMS700
  * \return the actual gain value in dB
  */
 LMS7002M_API double LMS7002M_rfe_set_tia(LMS7002M_t *self, const LMS7002M_chan_t channel, const double gain);
+
+/*!
+ * Set the TIA gain for the RX RF frontend that is distributed.
+ * \param self an instance of the LMS7002M driver
+ * \param channel the channel LMS_CHA or LMS_CHB
+ * \param gain the gain value in dB 0 to 12
+ * \return the actual gain value in dB
+ */
+LMS7002M_API double LMS7002M_rfe_set_tia_dist(LMS7002M_t *self, const LMS7002M_chan_t channel, const double gain);
 
 //=====================================================================//
 // MCU (embedded microcontroller)
