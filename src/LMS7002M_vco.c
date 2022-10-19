@@ -151,12 +151,16 @@ int LMS7002M_tune_vco(
 
     int csw_lowest = 0;
     int csw_highest = 0;
+    int csw_lowest_fallback = 0;
+    int csw_highest_fallback = 0;
     /*
     We need to find the boundary of the deadband range for the CSW register.
     Though the samples may be noisy or have "stuck" values at the start,
     so we try to be robust searching for a sequence like the following:
     002222233
     We in effect debounce the comparator a bit here.
+    If the first search does not find a reasonable CSW register, we will
+    fallback to a less strict check search and print a warning.
     */
     for (int i = 0; i < 252; i++)
     {
@@ -164,15 +168,36 @@ int LMS7002M_tune_vco(
             csw_lowest = i+2;
         else if (csw_ascending[i] == 2 && csw_ascending[i+1] == 2 && csw_ascending[i+2] == 3 && csw_ascending[i+3] == 3)
             csw_highest = i+1;
+
+        if (csw_ascending[i] == 0 && csw_ascending[i+1] == 2 && csw_ascending[i+2] == 2)
+            csw_lowest_fallback = i+1;
+        else if (csw_ascending[i] == 2 && csw_ascending[i+1] == 3 && csw_ascending[i+2] == 3)
+            csw_highest_fallback = i;
     }
 
     //set the midpoint of the search
     *vco_csw_reg = (csw_highest+csw_lowest)/2;
     LMS7002M_regs_spi_write(self, vco_csw_addr);
-    LMS7_logf(LMS7_DEBUG, "lowest CSW_VCO %i, highest CSW_VCO %i, CSW_VCO %i", csw_lowest, csw_highest, *vco_csw_reg);
 
     //check that the vco selection was successful
     LMS7002M_read_vco_cmp(self, vco_cmp_addr);
+
+    if (*vco_cmpho_reg != 0 && *vco_cmplo_reg == 0)
+    {
+        //set the midpoint of the search
+        *vco_csw_reg = (csw_highest_fallback+csw_lowest_fallback)/2;
+        LMS7002M_regs_spi_write(self, vco_csw_addr);
+        LMS7_logf(LMS7_DEBUG, "Warning: We used a less strict algorithm to find the ideal VCO.");
+        LMS7_logf(LMS7_DEBUG, "lowest CSW_VCO %i, highest CSW_VCO %i, CSW_VCO %i", csw_lowest_fallback, csw_highest_fallback, *vco_csw_reg);
+
+        //check that the vco selection was successful
+        LMS7002M_read_vco_cmp(self, vco_cmp_addr);
+    }
+    else
+    {
+        LMS7_logf(LMS7_DEBUG, "lowest CSW_VCO %i, highest CSW_VCO %i, CSW_VCO %i", csw_lowest, csw_highest, *vco_csw_reg);
+    }
+
     if (*vco_cmpho_reg != 0 && *vco_cmplo_reg == 0)
     {
         LMS7_log(LMS7_DEBUG, "VCO OK");
