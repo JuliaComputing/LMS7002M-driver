@@ -991,13 +991,22 @@ LMS7002M_API int LMS7002M_mcu_calibration_tx(LMS7002M_t *self, LMS7002M_chan_t c
 
 
 /*!
- * Use the embedded microcontroller to calibrate the RX dc offsets and iq imbalance.
+ * Use the embedded microcontroller to calibrate the RX dc offsets and IQ imbalance.
  * \param self an instance of the LMS7002M driver
  * \param clk the reference clock
  * \param self the bandwidth to calibrate for
  * \return 0 for success otherwise failure
  */
-LMS7002M_API int LMS7002M_mcu_calibration_dc_rx(LMS7002M_t *self, LMS7002M_chan_t channel, float clk, float bw);
+LMS7002M_API int LMS7002M_mcu_calibration_dc_offset_iq_imbalance_rx(LMS7002M_t *self, LMS7002M_chan_t channel, float clk, float bw);
+
+/*!
+ * Use the embedded microcontroller to calibrate the TX dc offsets and IQ imbalance.
+ * \param self an instance of the LMS7002M driver
+ * \param clk the reference clock
+ * \param self the bandwidth to calibrate for
+ * \return 0 for success otherwise failure
+ */
+LMS7002M_API int LMS7002M_mcu_calibration_dc_offset_iq_imbalance_tx(LMS7002M_t *self, LMS7002M_chan_t channel, float clk, float bw);
 
 
 #ifdef __cplusplus
