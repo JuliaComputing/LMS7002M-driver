@@ -1212,10 +1212,14 @@ LMS7002M_API int LMS7002M_mcu_calibration_tx(LMS7002M_t *self, LMS7002M_chan_t c
     return 0;
 }
 
-LMS7002M_API int LMS7002M_mcu_calibration_dc_rx(LMS7002M_t *self, LMS7002M_chan_t channel, float clk, float bw)
+LMS7002M_API int LMS7002M_mcu_calibration_dc_offset_iq_imbalance_rx(LMS7002M_t *self, LMS7002M_chan_t channel, float clk, float bw)
 {
     LMS7002M_set_mac_ch(self, channel);
 
+    if (LMS7002M_mcu_write_calibration_program(self)) {
+        LMS7_logf(LMS7_ERROR, "Failed to write MCU calibration program");
+        return -1;
+    }
 
     LMS7002M_mcu_set_parameter(self, MCU_REF_CLK, clk);
     LMS7002M_mcu_set_parameter(self, MCU_BW, bw);
@@ -1223,6 +1227,26 @@ LMS7002M_API int LMS7002M_mcu_calibration_dc_rx(LMS7002M_t *self, LMS7002M_chan_
     int ret = LMS7002M_mcu_wait(self, 10000);
     if (ret != MCU_NO_ERROR) {
         LMS7_logf(LMS7_ERROR, "MCU DC Rx calibration failed: %s", status_message(ret));
+        return -1;
+    }
+    return 0;
+}
+
+LMS7002M_API int LMS7002M_mcu_calibration_dc_offset_iq_imbalance_tx(LMS7002M_t *self, LMS7002M_chan_t channel, float clk, float bw)
+{
+    LMS7002M_set_mac_ch(self, channel);
+
+    if (LMS7002M_mcu_write_calibration_program(self)) {
+        LMS7_logf(LMS7_ERROR, "Failed to write MCU calibration program");
+        return -1;
+    }
+
+    LMS7002M_mcu_set_parameter(self, MCU_REF_CLK, clk);
+    LMS7002M_mcu_set_parameter(self, MCU_BW, bw);
+    LMS7002M_mcu_run_procedure(self, MCU_FUNCTION_CALIBRATE_TX);
+    int ret = LMS7002M_mcu_wait(self, 10000);
+    if (ret != MCU_NO_ERROR) {
+        LMS7_logf(LMS7_ERROR, "MCU DC Tx calibration failed: %s", status_message(ret));
         return -1;
     }
     return 0;
