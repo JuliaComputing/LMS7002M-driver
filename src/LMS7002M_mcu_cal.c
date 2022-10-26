@@ -1240,7 +1240,8 @@ LMS7002M_API int LMS7002M_mcu_calibration_dc_offset_iq_imbalance(
 
     int ret = LMS7002M_mcu_wait(self, 10000);
     if (ret != MCU_NO_ERROR) {
-        LMS7_logf(LMS7_ERROR, "MCU DC Rx calibration failed: %s", status_message(ret));
+        char* dir_string = direction == LMS_RX ? "RX" : "TX";
+        LMS7_logf(LMS7_ERROR, "MCU DC %s calibration failed: %s", dir_string, status_message(ret));
         return -1;
     }
     return 0;
