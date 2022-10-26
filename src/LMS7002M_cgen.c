@@ -71,6 +71,10 @@ int LMS7002M_set_data_clock(LMS7002M_t *self, const double fref, const double fo
     LMS7002M_regs_spi_write(self, 0x0086);
 
     //configure and enable synthesizer
+    self->regs->reg_0x0086_spdup_vco_cgen = 0; //fast settling
+    // self->regs->reg_0x0086_reset_n_cgen = 1;
+    self->regs->reg_0x0086_en_adcclkh_clkgn = 0; // Tx/Rx same samplerate
+    self->regs->reg_0x0086_en_coarse_cklgen = 0;
     self->regs->reg_0x0086_en_intonly_sdm_cgen = 0; //support frac-N
     self->regs->reg_0x0086_en_sdm_clk_cgen = 1; //enable
     self->regs->reg_0x0086_pd_cp_cgen = 0; //enable
@@ -80,11 +84,11 @@ int LMS7002M_set_data_clock(LMS7002M_t *self, const double fref, const double fo
     self->regs->reg_0x0086_pd_vco_cgen = 0; //enable
     self->regs->reg_0x0086_pd_vco_comp_cgen = 0; //enable
     self->regs->reg_0x0086_en_g_cgen = 1;
-    self->regs->reg_0x0086_en_adcclkh_clkgn = 0; // Tx/Rx same samplerate
-    self->regs->reg_0x0086_en_coarse_cklgen = 0;
-    self->regs->reg_0x008b_coarse_start_cgen = 0;
-    self->regs->reg_0x0086_spdup_vco_cgen = 1; //fast settling
     LMS7002M_regs_spi_write(self, 0x0086);
+//    self->regs->reg_0x008b_ict_vco_cgen = 15;
+//    self->regs->reg_0x008b_csw_vco_cgen = 128;
+    self->regs->reg_0x008b_coarse_start_cgen = 0;
+    LMS7002M_regs_spi_write(self, 0x008b);
 
     //program the N divider
     const int Nint = (int)Ndiv;
