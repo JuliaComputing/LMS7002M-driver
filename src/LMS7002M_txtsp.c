@@ -138,6 +138,19 @@ void LMS7002M_txtsp_set_dc_correction(
     LMS7002M_regs_spi_write(self, 0x0204);
 }
 
+void LMS7002M_txtsp_get_dc_correction(
+    LMS7002M_t *self,
+    const LMS7002M_chan_t channel,
+    double *valI,
+    double *valQ)
+{
+    LMS7002M_set_mac_ch(self, channel);
+
+    int dccorr = LMS7002M_spi_read(self, 0x0204);
+    *valI = (double)(int8_t)((dccorr >> 8) & 0xff);
+    *valQ = (double)(int8_t)((dccorr >> 0) & 0xff);
+}
+
 void LMS7002M_txtsp_set_iq_correction(
     LMS7002M_t *self,
     const LMS7002M_chan_t channel,

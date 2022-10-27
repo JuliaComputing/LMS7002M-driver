@@ -519,6 +519,20 @@ LMS7002M_API void LMS7002M_txtsp_set_dc_correction(
     const double valQ);
 
 /*!
+ * DC offset correction value for Tx TSP chain.
+ * Correction values are maximum 1.0 (full scale).
+ * \param self an instance of the LMS7002M driver
+ * \param channel the channel LMS_CHA or LMS_CHB
+ * \param valI the I correction value
+ * \param valQ the Q correction value
+ */
+LMS7002M_API void LMS7002M_txtsp_get_dc_correction(
+    LMS7002M_t *self,
+    const LMS7002M_chan_t channel,
+    double *valI,
+    double *valQ);
+
+/*!
  * IQ imbalance correction value for Tx TSP chain.
  *
  * - The gain is the ratio of I/Q, and should be near 1.0
