@@ -23,7 +23,7 @@ static void LMS7002M_read_vco_cmp(LMS7002M_t *self, const int vco_cmp_addr)
     LMS7002M_regs_spi_read(self, vco_cmp_addr);
 
     //sleep while the comparator value settles
-    usleep(1000);
+    usleep(100);
 
     //final read of the comparator after settling
     LMS7002M_regs_spi_read(self, vco_cmp_addr);
