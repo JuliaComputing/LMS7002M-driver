@@ -368,6 +368,15 @@ LMS7002M_API void LMS7002M_afe_enable(LMS7002M_t *self, const LMS7002M_dir_t dir
  */
 LMS7002M_API int LMS7002M_set_data_clock(LMS7002M_t *self, const double fref, const double fout, double *factual);
 
+/*!
+ * Get the current data clock rate.
+ * \param self an instance of the LMS7002M driver
+ * \param fref the reference clock frequency in Hz
+ * \return the actual clock rate in Hz
+ */
+LMS7002M_API double LMS7002M_get_data_clock(LMS7002M_t *self, double fref);
+
+
 //=====================================================================//
 // Shared helper functions for Rx and TX tsp
 //=====================================================================//
