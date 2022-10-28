@@ -686,6 +686,13 @@ LMS7002M_API void LMS7002M_trf_enable(LMS7002M_t *self, const LMS7002M_chan_t ch
 LMS7002M_API void LMS7002M_trf_select_band(LMS7002M_t *self, const LMS7002M_chan_t channel, const int band);
 
 /*!
+ * Get the TX RF band (band 1 or band 2)
+ * \param self an instance of the LMS7002M driver
+ * \param channel the channel LMS_CHA or LMS_CHB
+ */
+LMS7002M_API int LMS7002M_trf_get_band(LMS7002M_t *self, const LMS7002M_chan_t channel);
+
+/*!
  * Enable/disable the TX RF loopback to RFE.
  * \param self an instance of the LMS7002M driver
  * \param channel the channel LMS_CHA or LMS_CHB
@@ -921,6 +928,13 @@ LMS7002M_API void LMS7002M_rfe_enable(LMS7002M_t *self, const LMS7002M_chan_t ch
  * \param path the input path (see LMS7002M_RFE_* defines)
  */
 LMS7002M_API void LMS7002M_rfe_set_path(LMS7002M_t *self, const LMS7002M_chan_t channel, const int path);
+
+/*!
+ * Get the active input path for the RX RF frontend.
+ * \param self an instance of the LMS7002M driver
+ * \param channel the channel LMS_CHA or LMS_CHB
+ */
+LMS7002M_API int LMS7002M_rfe_get_path(LMS7002M_t *self, const LMS7002M_chan_t channel);
 
 /*!
  * Set the LNA gain for the RX RF frontend.

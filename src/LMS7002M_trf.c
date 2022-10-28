@@ -42,11 +42,25 @@ void LMS7002M_trf_select_band(LMS7002M_t *self, const LMS7002M_chan_t channel, c
     LMS7002M_regs_spi_write(self, 0x0103);
 }
 
+int LMS7002M_trf_get_band(LMS7002M_t *self, const LMS7002M_chan_t channel)
+{
+    LMS7002M_set_mac_ch(self, channel);
+    LMS7002M_regs_spi_read(self, 0x0103);
+    return self->regs->reg_0x0103_sel_band2_trf << 1 | self->regs->reg_0x0103_sel_band1_trf;
+}
+
 void LMS7002M_trf_enable_loopback(LMS7002M_t *self, const LMS7002M_chan_t channel, const bool enable)
 {
     LMS7002M_set_mac_ch(self, channel);
     self->regs->reg_0x0101_en_loopb_txpad_trf = enable?1:0;
     LMS7002M_regs_spi_write(self, 0x0101);
+}
+
+int LMS7002M_trf_get_loopback(LMS7002M_t *self, const LMS7002M_chan_t channel)
+{
+    LMS7002M_set_mac_ch(self, channel);
+    LMS7002M_regs_spi_read(self, 0x0101);
+    return self->regs->reg_0x0101_en_loopb_txpad_trf;
 }
 
 double LMS7002M_trf_set_pad(LMS7002M_t *self, const LMS7002M_chan_t channel, const double gain)

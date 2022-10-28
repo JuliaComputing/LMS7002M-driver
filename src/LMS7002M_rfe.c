@@ -90,6 +90,36 @@ void LMS7002M_rfe_set_path(LMS7002M_t *self, const LMS7002M_chan_t channel, cons
     LMS7002M_trf_enable_loopback(self, channel, enb_trf_loopback);
 }
 
+int LMS7002M_rfe_get_path(LMS7002M_t *self, const LMS7002M_chan_t channel)
+{
+    LMS7002M_set_mac_ch(self, channel);
+
+    LMS7002M_regs_spi_read(self, 0x010d);
+
+    int enb_trf_loopback = LMS7002M_trf_get_loopback(self, channel);
+
+    switch (self->regs->reg_0x010d_sel_path_rfe)
+    {
+    case REG_0X010D_SEL_PATH_RFE_LNAH:
+        if (enb_trf_loopback)
+            return LMS7002M_RFE_LB1;
+        else
+            return LMS7002M_RFE_LNAH;
+
+    case REG_0X010D_SEL_PATH_RFE_LNAL:
+        if (enb_trf_loopback)
+            return LMS7002M_RFE_LB2;
+        else
+            return LMS7002M_RFE_LNAL;
+
+    case LMS7002M_RFE_NONE:
+        return LMS7002M_RFE_NONE;
+
+    case REG_0X010D_SEL_PATH_RFE_LNAW:
+        return LMS7002M_RFE_LNAW;
+    }
+}
+
 double LMS7002M_rfe_set_lna(LMS7002M_t *self, const LMS7002M_chan_t channel, const double gain)
 {
     const double gmax = 30;
