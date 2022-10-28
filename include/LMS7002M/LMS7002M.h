@@ -394,6 +394,16 @@ LMS7002M_API double LMS7002M_get_data_clock(LMS7002M_t *self, double fref);
 LMS7002M_API void LMS7002M_set_nco_freq(LMS7002M_t *self, const LMS7002M_dir_t direction, const LMS7002M_chan_t channel, const double freqRel);
 
 /*!
+ * Get the frequency for the specified NCO.
+ * Most users should use LMS7002M_xxtsp_get_freq() to handle bypasses.
+ * \param self an instance of the LMS7002M driver
+ * \param direction the direction LMS_TX or LMS_RX
+ * \param channel the channel LMS_CHA or LMS_CHB
+ */
+LMS7002M_API double LMS7002M_get_nco_freq(LMS7002M_t *self, const LMS7002M_dir_t direction, const LMS7002M_chan_t channel);
+
+
+/*!
  * Set the filter taps for one of the TSP FIR filters.
  *
  * If the taps array is NULL or the ntaps is 0,
@@ -496,6 +506,14 @@ LMS7002M_API void LMS7002M_txtsp_set_interp(LMS7002M_t *self, const LMS7002M_cha
  * \param freqRel a fractional frequency in (-0.5, 0.5)
  */
 LMS7002M_API void LMS7002M_txtsp_set_freq(LMS7002M_t *self, const LMS7002M_chan_t channel, const double freqRel);
+
+/*!
+ * Get the TX TSP CMIX frequency.
+ * \param self an instance of the LMS7002M driver
+ * \param channel the channel LMS_CHA or LMS_CHB
+ */
+LMS7002M_API double LMS7002M_txtsp_get_freq(LMS7002M_t *self, const LMS7002M_chan_t channel);
+
 
 /*!
  * Test constant signal level for TX TSP chain.
@@ -723,6 +741,14 @@ LMS7002M_API void LMS7002M_rxtsp_set_decim(LMS7002M_t *self, const LMS7002M_chan
  * \param freqRel a fractional frequency in (-0.5, 0.5)
  */
 LMS7002M_API void LMS7002M_rxtsp_set_freq(LMS7002M_t *self, const LMS7002M_chan_t channel, const double freqRel);
+
+/*!
+ * Get the RX TSP CMIX frequency.
+ * Math: freqHz = TSPRate * sampleRate
+ * \param self an instance of the LMS7002M driver
+ * \param channel the channel LMS_CHA or LMS_CHB
+ */
+LMS7002M_API double LMS7002M_rxtsp_get_freq(LMS7002M_t *self, const LMS7002M_chan_t channel);
 
 /*!
  * Test constant signal level for RX TSP chain.

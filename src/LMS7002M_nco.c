@@ -52,3 +52,35 @@ void LMS7002M_set_nco_freq(LMS7002M_t *self, const LMS7002M_dir_t direction, con
     LMS7002M_regs_spi_write(self, addrTop | 0x0042);
     LMS7002M_regs_spi_write(self, addrTop | 0x0043);
 }
+
+double LMS7002M_get_nco_freq(LMS7002M_t *self, const LMS7002M_dir_t direction, const LMS7002M_chan_t channel)
+{
+    LMS7002M_set_mac_ch(self, channel);
+
+    //handle sign flip for RX NCO on newer masks of the RFIC
+    int sign = 1;
+    if (self->regs->reg_0x002f_mask != 0 && direction == LMS_RX) sign = -1;
+
+    // write the registers
+    const int addrTop = (direction == LMS_RX) ? 0x0400 : 0x0200;
+    LMS7002M_regs_spi_read(self, addrTop | 0x0040);
+    LMS7002M_regs_spi_read(self, addrTop | 0x0042);
+    LMS7002M_regs_spi_read(self, addrTop | 0x0043);
+
+    int freqHi = 0;
+    int freqLo = 0;
+
+    if (direction == LMS_TX)
+    {
+        freqHi = self->regs->reg_0x0242_fcw0_hi;
+        freqLo = self->regs->reg_0x0243_fcw0_lo;
+    } else if (direction == LMS_RX)
+    {
+        freqHi = self->regs->reg_0x0442_fcw0_hi;
+        freqLo = self->regs->reg_0x0443_fcw0_lo;
+    }
+
+    int freqWord = (freqHi << 16) | freqLo;
+
+    return sign*freqWord/4294967296.0;
+}

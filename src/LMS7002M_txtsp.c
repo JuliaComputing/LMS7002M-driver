@@ -61,6 +61,16 @@ void LMS7002M_txtsp_set_freq(LMS7002M_t *self, const LMS7002M_chan_t channel, co
     LMS7002M_set_nco_freq(self, LMS_TX, channel, freqRel);
 }
 
+double LMS7002M_txtsp_get_freq(LMS7002M_t *self, const LMS7002M_chan_t channel)
+{
+    LMS7002M_set_mac_ch(self, channel);
+    LMS7002M_regs_spi_read(self, 0x0208);
+    if (self->regs->reg_0x0208_cmix_byp == 1)
+        return 0.0;
+    return LMS7002M_get_nco_freq(self, LMS_TX, channel);
+}
+
+
 void LMS7002M_txtsp_tsg_const(LMS7002M_t *self, const LMS7002M_chan_t channel, const int valI, const int valQ)
 {
     LMS7002M_set_mac_ch(self, channel);

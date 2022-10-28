@@ -12,7 +12,9 @@
 
 #include <stdlib.h>
 #include <math.h> //M_PI
+#include "LMS7002M/LMS7002M.h"
 #include "LMS7002M_impl.h"
+#include <LMS7002M/LMS7002M_logger.h>
 
 void LMS7002M_rxtsp_enable(LMS7002M_t *self, const LMS7002M_chan_t channel, const bool enable)
 {
@@ -65,6 +67,16 @@ void LMS7002M_rxtsp_set_freq(LMS7002M_t *self, const LMS7002M_chan_t channel, co
     LMS7002M_regs_spi_write(self, 0x040c);
     LMS7002M_set_nco_freq(self, LMS_RX, channel, freqRel);
 }
+
+double LMS7002M_rxtsp_get_freq(LMS7002M_t *self, const LMS7002M_chan_t channel)
+{
+    LMS7002M_set_mac_ch(self, channel);
+    LMS7002M_regs_spi_read(self, 0x040c);
+    if (self->regs->reg_0x040c_cmix_byp == 1)
+        return 0.0;
+    return LMS7002M_get_nco_freq(self, LMS_RX, channel);
+}
+
 
 void LMS7002M_rxtsp_tsg_const(LMS7002M_t *self, const LMS7002M_chan_t channel, const int valI, const int valQ)
 {
