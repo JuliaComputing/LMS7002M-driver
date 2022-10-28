@@ -446,6 +446,17 @@ LMS7002M_API void LMS7002M_sxx_enable(LMS7002M_t *self, const LMS7002M_dir_t dir
  */
 LMS7002M_API int LMS7002M_set_lo_freq(LMS7002M_t *self, const LMS7002M_dir_t direction, const double fref, const double fout, double *factual);
 
+
+/*!
+ * Get the actual LO frequency for the specified direction.
+ * \param self an instance of the LMS7002M driver
+ * \param direction the direction LMS_TX or LMS_RX
+ * \param fref the reference clock frequency in Hz
+ * \return the actual LO frequency in Hz
+ */
+LMS7002M_API int LMS7002M_get_lo_freq(LMS7002M_t *self, const LMS7002M_dir_t direction, const double fref);
+
+
 /*!
  * Share the transmit LO to the receive chain.
  * This is useful for TDD modes which use the same LO for Rx and Tx.
