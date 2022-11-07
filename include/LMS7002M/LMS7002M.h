@@ -803,8 +803,44 @@ LMS7002M_API uint16_t LMS7002M_rxtsp_read_rssi(LMS7002M_t *self, const LMS7002M_
 LMS7002M_API void LMS7002M_rxtsp_set_dc_correction(
     LMS7002M_t *self,
     const LMS7002M_chan_t channel,
-    const bool enabled,
+    const bool enabled);
+
+/*!
+ * Get the DC offset correction value for Rx TSP chain.
+ * This subtracts out the average signal level.
+ * \param self an instance of the LMS7002M driver
+ * \param channel the channel LMS_CHA or LMS_CHB
+ * \param enabled true to enable correction
+ * \return average window length 0-7 (def 0)
+ */
+LMS7002M_API bool LMS7002M_rxtsp_get_dc_correction(
+    LMS7002M_t *self,
+    const LMS7002M_chan_t channel);
+
+/*!
+ * DC offset correction value for Rx TSP chain.
+ * This subtracts out the average signal level.
+ * \param self an instance of the LMS7002M driver
+ * \param channel the channel LMS_CHA or LMS_CHB
+ * \param enabled true to enable correction
+ * \param window average window length 0-7 (def 0)
+ */
+LMS7002M_API void LMS7002M_rxtsp_set_dc_correction_window(
+    LMS7002M_t *self,
+    const LMS7002M_chan_t channel,
     const int window);
+
+/*!
+ * Get the DC offset correction value for Rx TSP chain.
+ * This subtracts out the average signal level.
+ * \param self an instance of the LMS7002M driver
+ * \param channel the channel LMS_CHA or LMS_CHB
+ * \param enabled true to enable correction
+ * \return average window length 0-7 (def 0)
+ */
+LMS7002M_API int LMS7002M_rxtsp_get_dc_correction_window(
+    LMS7002M_t *self,
+    const LMS7002M_chan_t channel);
 
 /*!
  * IQ imbalance correction value for Rx TSP chain.
