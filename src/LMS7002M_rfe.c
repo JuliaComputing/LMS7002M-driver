@@ -148,6 +148,33 @@ double LMS7002M_rfe_set_lna(LMS7002M_t *self, const LMS7002M_chan_t channel, con
     return val + gmax;
 }
 
+double LMS7002M_rfe_get_lna(LMS7002M_t *self, const LMS7002M_chan_t channel)
+{
+    const double gmax = 30;
+    double val = 0;
+
+    LMS7002M_set_mac_ch(self, channel);
+    LMS7002M_regs_spi_read(self, 0x0113);
+
+    if (self->regs->reg_0x0113_g_lna_rfe == 15) val = 0;
+    else if (self->regs->reg_0x0113_g_lna_rfe == 14) val = -1;
+    else if (self->regs->reg_0x0113_g_lna_rfe == 13) val = -2;
+    else if (self->regs->reg_0x0113_g_lna_rfe == 12) val = -3;
+    else if (self->regs->reg_0x0113_g_lna_rfe == 11) val = -4;
+    else if (self->regs->reg_0x0113_g_lna_rfe == 10) val = -5;
+    else if (self->regs->reg_0x0113_g_lna_rfe == 9) val = -6;
+    else if (self->regs->reg_0x0113_g_lna_rfe == 8) val = -9;
+    else if (self->regs->reg_0x0113_g_lna_rfe == 7) val = -12;
+    else if (self->regs->reg_0x0113_g_lna_rfe == 6) val = -15;
+    else if (self->regs->reg_0x0113_g_lna_rfe == 5) val = -18;
+    else if (self->regs->reg_0x0113_g_lna_rfe == 4) val = -21;
+    else if (self->regs->reg_0x0113_g_lna_rfe == 3) val = -24;
+    else if (self->regs->reg_0x0113_g_lna_rfe == 2) val = -27;
+    else if (self->regs->reg_0x0113_g_lna_rfe == 1) val = -30;
+
+    return val + gmax;
+}
+
 double LMS7002M_rfe_set_lna_dist(LMS7002M_t *self, const LMS7002M_chan_t channel, const double gain)
 {
     LMS7002M_set_mac_ch(self, channel);

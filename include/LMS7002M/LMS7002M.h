@@ -982,6 +982,14 @@ LMS7002M_API int LMS7002M_rfe_get_path(LMS7002M_t *self, const LMS7002M_chan_t c
 LMS7002M_API double LMS7002M_rfe_set_lna(LMS7002M_t *self, const LMS7002M_chan_t channel, const double gain);
 
 /*!
+ * Get the LNA gain for the RX RF frontend.
+ * \param self an instance of the LMS7002M driver
+ * \param channel the channel LMS_CHA or LMS_CHB
+ * \return the actual gain value in dB
+ */
+LMS7002M_API double LMS7002M_rfe_get_lna(LMS7002M_t *self, const LMS7002M_chan_t channel);
+
+/*!
  * Set the LNA gain for the RX RF frontend that is distributed.
  * \param self an instance of the LMS7002M driver
  * \param channel the channel LMS_CHA or LMS_CHB
