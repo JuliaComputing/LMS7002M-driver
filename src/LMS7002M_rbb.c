@@ -141,6 +141,15 @@ double LMS7002M_rbb_set_pga(LMS7002M_t *self, const LMS7002M_chan_t channel, con
     return G_PGA_RBB - 12.0;
 }
 
+double LMS7002M_rbb_get_pga(LMS7002M_t *self, const LMS7002M_chan_t channel)
+{
+    LMS7002M_set_mac_ch(self, channel);
+
+    LMS7002M_regs_spi_read(self, 0x0119);
+
+    return self->regs->reg_0x0119_g_pga_rbb - 12.0;
+}
+
 double LMS7002M_rbb_set_pga_dist(LMS7002M_t *self, const LMS7002M_chan_t channel, const double gain)
 {
     LMS7002M_set_mac_ch(self, channel);

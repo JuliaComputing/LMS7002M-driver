@@ -709,6 +709,15 @@ LMS7002M_API void LMS7002M_trf_enable_loopback(LMS7002M_t *self, const LMS7002M_
  */
 LMS7002M_API double LMS7002M_trf_set_pad(LMS7002M_t *self, const LMS7002M_chan_t channel, const double gain);
 
+
+/*!
+ * Get the PAD gain (loss) for the TX RF frontend.
+ * \param self an instance of the LMS7002M driver
+ * \param channel the channel LMS_CHA or LMS_CHB
+ * \return the actual gain value in dB
+ */
+LMS7002M_API double LMS7002M_trf_get_pad(LMS7002M_t *self, const LMS7002M_chan_t channel);
+
 /*!
  * Set the PAD gain (loss) for the TX RF frontend (in RX loopback mode).
  * \param self an instance of the LMS7002M driver
@@ -717,6 +726,15 @@ LMS7002M_API double LMS7002M_trf_set_pad(LMS7002M_t *self, const LMS7002M_chan_t
  * \return the actual gain value in dB
  */
 LMS7002M_API double LMS7002M_trf_set_loopback_pad(LMS7002M_t *self, const LMS7002M_chan_t channel, const double gain);
+
+
+/*!
+ * Get the PAD gain (loss) for the TX RF frontend (in RX loopback mode).
+ * \param self an instance of the LMS7002M driver
+ * \param channel the channel LMS_CHA or LMS_CHB
+ * \return the actual gain value in dB
+ */
+LMS7002M_API double LMS7002M_trf_get_loopback_pad(LMS7002M_t *self, const LMS7002M_chan_t channel);
 
 //=====================================================================//
 // RxTSP (receive DSP chain)
@@ -919,6 +937,14 @@ LMS7002M_API void LMS7002M_rbb_set_test_out(LMS7002M_t *self, const LMS7002M_cha
 LMS7002M_API double LMS7002M_rbb_set_pga(LMS7002M_t *self, const LMS7002M_chan_t channel, const double gain);
 
 /*!
+ * Get the PGA gain for the RX baseband.
+ * \param self an instance of the LMS7002M driver
+ * \param channel the channel LMS_CHA or LMS_CHB
+ * \return the actual gain value in dB
+ */
+LMS7002M_API double LMS7002M_rbb_get_pga(LMS7002M_t *self, const LMS7002M_chan_t channel);
+
+/*!
  * Set the PGA gain for the RX baseband that is distributed.
  * \param self an instance of the LMS7002M driver
  * \param channel the channel LMS_CHA or LMS_CHB
@@ -1008,6 +1034,14 @@ LMS7002M_API double LMS7002M_rfe_set_lna_dist(LMS7002M_t *self, const LMS7002M_c
 LMS7002M_API double LMS7002M_rfe_set_loopback_lna(LMS7002M_t *self, const LMS7002M_chan_t channel, const double gain);
 
 /*!
+ * Get the LNA gain for the RX RF frontend (in TX loopback mode).
+ * \param self an instance of the LMS7002M driver
+ * \param channel the channel LMS_CHA or LMS_CHB
+ * \return the actual gain value in dB
+ */
+LMS7002M_API double LMS7002M_rfe_get_loopback_lna(LMS7002M_t *self, const LMS7002M_chan_t channel);
+
+/*!
  * Set the TIA gain for the RX RF frontend.
  * \param self an instance of the LMS7002M driver
  * \param channel the channel LMS_CHA or LMS_CHB
@@ -1015,6 +1049,14 @@ LMS7002M_API double LMS7002M_rfe_set_loopback_lna(LMS7002M_t *self, const LMS700
  * \return the actual gain value in dB
  */
 LMS7002M_API double LMS7002M_rfe_set_tia(LMS7002M_t *self, const LMS7002M_chan_t channel, const double gain);
+
+/*!
+ * Get the TIA gain for the RX RF frontend.
+ * \param self an instance of the LMS7002M driver
+ * \param channel the channel LMS_CHA or LMS_CHB
+ * \return the actual gain value in dB
+ */
+LMS7002M_API double LMS7002M_rfe_get_tia(LMS7002M_t *self, const LMS7002M_chan_t channel);
 
 /*!
  * Set the TIA gain for the RX RF frontend that is distributed.

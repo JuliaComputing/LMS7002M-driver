@@ -215,6 +215,35 @@ double LMS7002M_rfe_set_loopback_lna(LMS7002M_t *self, const LMS7002M_chan_t cha
     return val + gmax;
 }
 
+double LMS7002M_rfe_get_loopback_lna(LMS7002M_t *self, const LMS7002M_chan_t channel)
+{
+    const double gmax = 40;
+    double val;
+
+    LMS7002M_set_mac_ch(self, channel);
+
+    LMS7002M_regs_spi_read(self, 0x0113);
+
+    if (self->regs->reg_0x0113_g_rxloopb_rfe == 15) val = 0;
+    else if (self->regs->reg_0x0113_g_rxloopb_rfe == 14) val = -0.5;
+    else if (self->regs->reg_0x0113_g_rxloopb_rfe == 13) val = -1;
+    else if (self->regs->reg_0x0113_g_rxloopb_rfe == 12) val = -1.6;
+    else if (self->regs->reg_0x0113_g_rxloopb_rfe == 11) val = -2.4;
+    else if (self->regs->reg_0x0113_g_rxloopb_rfe == 10) val = -3;
+    else if (self->regs->reg_0x0113_g_rxloopb_rfe == 9) val = -4;
+    else if (self->regs->reg_0x0113_g_rxloopb_rfe == 8) val = -5;
+    else if (self->regs->reg_0x0113_g_rxloopb_rfe == 7) val = -6.2;
+    else if (self->regs->reg_0x0113_g_rxloopb_rfe == 6) val = -7.5;
+    else if (self->regs->reg_0x0113_g_rxloopb_rfe == 5) val = -9;
+    else if (self->regs->reg_0x0113_g_rxloopb_rfe == 4) val = -11;
+    else if (self->regs->reg_0x0113_g_rxloopb_rfe == 3) val = -14;
+    else if (self->regs->reg_0x0113_g_rxloopb_rfe == 2) val = -17;
+    else if (self->regs->reg_0x0113_g_rxloopb_rfe == 1) val = -24;
+    else val = -40;
+
+    return val + gmax;
+}
+
 double LMS7002M_rfe_set_tia(LMS7002M_t *self, const LMS7002M_chan_t channel, const double gain)
 {
     const double gmax = 12;
@@ -230,6 +259,23 @@ double LMS7002M_rfe_set_tia(LMS7002M_t *self, const LMS7002M_chan_t channel, con
 
     return val + gmax;
 }
+
+double LMS7002M_rfe_get_tia(LMS7002M_t *self, const LMS7002M_chan_t channel)
+{
+    const double gmax = 12;
+    double val;
+
+    LMS7002M_set_mac_ch(self, channel);
+
+    LMS7002M_regs_spi_read(self, 0x0113);
+
+    if (self->regs->reg_0x0113_g_tia_rfe == 3) val = 0;
+    else if (self->regs->reg_0x0113_g_tia_rfe == 2) val = -3;
+    else val = -12;
+
+    return val + gmax;
+}
+
 
 double LMS7002M_rfe_set_tia_dist(LMS7002M_t *self, const LMS7002M_chan_t channel, const double gain)
 {
