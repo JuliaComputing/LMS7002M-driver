@@ -123,3 +123,19 @@ int LMS7002M_set_data_clock(LMS7002M_t *self, const double fref, const double fo
 
     return 0; //OK
 }
+
+
+double LMS7002M_get_data_clock(LMS7002M_t *self, double fref)
+{
+    LMS7002M_regs_spi_read(self, 0x0089);
+    int fdiv = (self->regs->reg_0x0089_div_outch_cgen + 1) * 2;
+
+    LMS7002M_regs_spi_read(self, 0x0088);
+    int Nint = self->regs->reg_0x0088_int_sdm_cgen + 1;
+
+    LMS7002M_regs_spi_read(self, 0x0087);
+    int Nfrac = self->regs->reg_0x0087_frac_sdm_cgen;
+    Nfrac |= (self->regs->reg_0x0088_frac_sdm_cgen << 16);
+
+    return fref * (Nint + (Nfrac/((double)(1 << 20)))) / fdiv;
+}

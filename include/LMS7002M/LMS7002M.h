@@ -368,6 +368,15 @@ LMS7002M_API void LMS7002M_afe_enable(LMS7002M_t *self, const LMS7002M_dir_t dir
  */
 LMS7002M_API int LMS7002M_set_data_clock(LMS7002M_t *self, const double fref, const double fout, double *factual);
 
+/*!
+ * Get the current data clock rate.
+ * \param self an instance of the LMS7002M driver
+ * \param fref the reference clock frequency in Hz
+ * \return the actual clock rate in Hz
+ */
+LMS7002M_API double LMS7002M_get_data_clock(LMS7002M_t *self, double fref);
+
+
 //=====================================================================//
 // Shared helper functions for Rx and TX tsp
 //=====================================================================//
@@ -383,6 +392,16 @@ LMS7002M_API int LMS7002M_set_data_clock(LMS7002M_t *self, const double fref, co
  * \param freqRel a fractional frequency in (-0.5, 0.5)
  */
 LMS7002M_API void LMS7002M_set_nco_freq(LMS7002M_t *self, const LMS7002M_dir_t direction, const LMS7002M_chan_t channel, const double freqRel);
+
+/*!
+ * Get the frequency for the specified NCO.
+ * Most users should use LMS7002M_xxtsp_get_freq() to handle bypasses.
+ * \param self an instance of the LMS7002M driver
+ * \param direction the direction LMS_TX or LMS_RX
+ * \param channel the channel LMS_CHA or LMS_CHB
+ */
+LMS7002M_API double LMS7002M_get_nco_freq(LMS7002M_t *self, const LMS7002M_dir_t direction, const LMS7002M_chan_t channel);
+
 
 /*!
  * Set the filter taps for one of the TSP FIR filters.
@@ -437,6 +456,17 @@ LMS7002M_API void LMS7002M_sxx_enable(LMS7002M_t *self, const LMS7002M_dir_t dir
  */
 LMS7002M_API int LMS7002M_set_lo_freq(LMS7002M_t *self, const LMS7002M_dir_t direction, const double fref, const double fout, double *factual);
 
+
+/*!
+ * Get the actual LO frequency for the specified direction.
+ * \param self an instance of the LMS7002M driver
+ * \param direction the direction LMS_TX or LMS_RX
+ * \param fref the reference clock frequency in Hz
+ * \return the actual LO frequency in Hz
+ */
+LMS7002M_API int LMS7002M_get_lo_freq(LMS7002M_t *self, const LMS7002M_dir_t direction, const double fref);
+
+
 /*!
  * Share the transmit LO to the receive chain.
  * This is useful for TDD modes which use the same LO for Rx and Tx.
@@ -478,6 +508,14 @@ LMS7002M_API void LMS7002M_txtsp_set_interp(LMS7002M_t *self, const LMS7002M_cha
 LMS7002M_API void LMS7002M_txtsp_set_freq(LMS7002M_t *self, const LMS7002M_chan_t channel, const double freqRel);
 
 /*!
+ * Get the TX TSP CMIX frequency.
+ * \param self an instance of the LMS7002M driver
+ * \param channel the channel LMS_CHA or LMS_CHB
+ */
+LMS7002M_API double LMS7002M_txtsp_get_freq(LMS7002M_t *self, const LMS7002M_chan_t channel);
+
+
+/*!
  * Test constant signal level for TX TSP chain.
  * Use LMS7002M_txtsp_enable() to restore regular mode.
  * \param self an instance of the LMS7002M driver
@@ -517,6 +555,20 @@ LMS7002M_API void LMS7002M_txtsp_set_dc_correction(
     const LMS7002M_chan_t channel,
     const double valI,
     const double valQ);
+
+/*!
+ * DC offset correction value for Tx TSP chain.
+ * Correction values are maximum 1.0 (full scale).
+ * \param self an instance of the LMS7002M driver
+ * \param channel the channel LMS_CHA or LMS_CHB
+ * \param valI the I correction value
+ * \param valQ the Q correction value
+ */
+LMS7002M_API void LMS7002M_txtsp_get_dc_correction(
+    LMS7002M_t *self,
+    const LMS7002M_chan_t channel,
+    double *valI,
+    double *valQ);
 
 /*!
  * IQ imbalance correction value for Tx TSP chain.
@@ -634,6 +686,13 @@ LMS7002M_API void LMS7002M_trf_enable(LMS7002M_t *self, const LMS7002M_chan_t ch
 LMS7002M_API void LMS7002M_trf_select_band(LMS7002M_t *self, const LMS7002M_chan_t channel, const int band);
 
 /*!
+ * Get the TX RF band (band 1 or band 2)
+ * \param self an instance of the LMS7002M driver
+ * \param channel the channel LMS_CHA or LMS_CHB
+ */
+LMS7002M_API int LMS7002M_trf_get_band(LMS7002M_t *self, const LMS7002M_chan_t channel);
+
+/*!
  * Enable/disable the TX RF loopback to RFE.
  * \param self an instance of the LMS7002M driver
  * \param channel the channel LMS_CHA or LMS_CHB
@@ -650,6 +709,15 @@ LMS7002M_API void LMS7002M_trf_enable_loopback(LMS7002M_t *self, const LMS7002M_
  */
 LMS7002M_API double LMS7002M_trf_set_pad(LMS7002M_t *self, const LMS7002M_chan_t channel, const double gain);
 
+
+/*!
+ * Get the PAD gain (loss) for the TX RF frontend.
+ * \param self an instance of the LMS7002M driver
+ * \param channel the channel LMS_CHA or LMS_CHB
+ * \return the actual gain value in dB
+ */
+LMS7002M_API double LMS7002M_trf_get_pad(LMS7002M_t *self, const LMS7002M_chan_t channel);
+
 /*!
  * Set the PAD gain (loss) for the TX RF frontend (in RX loopback mode).
  * \param self an instance of the LMS7002M driver
@@ -658,6 +726,15 @@ LMS7002M_API double LMS7002M_trf_set_pad(LMS7002M_t *self, const LMS7002M_chan_t
  * \return the actual gain value in dB
  */
 LMS7002M_API double LMS7002M_trf_set_loopback_pad(LMS7002M_t *self, const LMS7002M_chan_t channel, const double gain);
+
+
+/*!
+ * Get the PAD gain (loss) for the TX RF frontend (in RX loopback mode).
+ * \param self an instance of the LMS7002M driver
+ * \param channel the channel LMS_CHA or LMS_CHB
+ * \return the actual gain value in dB
+ */
+LMS7002M_API double LMS7002M_trf_get_loopback_pad(LMS7002M_t *self, const LMS7002M_chan_t channel);
 
 //=====================================================================//
 // RxTSP (receive DSP chain)
@@ -689,6 +766,14 @@ LMS7002M_API void LMS7002M_rxtsp_set_decim(LMS7002M_t *self, const LMS7002M_chan
  * \param freqRel a fractional frequency in (-0.5, 0.5)
  */
 LMS7002M_API void LMS7002M_rxtsp_set_freq(LMS7002M_t *self, const LMS7002M_chan_t channel, const double freqRel);
+
+/*!
+ * Get the RX TSP CMIX frequency.
+ * Math: freqHz = TSPRate * sampleRate
+ * \param self an instance of the LMS7002M driver
+ * \param channel the channel LMS_CHA or LMS_CHB
+ */
+LMS7002M_API double LMS7002M_rxtsp_get_freq(LMS7002M_t *self, const LMS7002M_chan_t channel);
 
 /*!
  * Test constant signal level for RX TSP chain.
@@ -736,8 +821,44 @@ LMS7002M_API uint16_t LMS7002M_rxtsp_read_rssi(LMS7002M_t *self, const LMS7002M_
 LMS7002M_API void LMS7002M_rxtsp_set_dc_correction(
     LMS7002M_t *self,
     const LMS7002M_chan_t channel,
-    const bool enabled,
+    const bool enabled);
+
+/*!
+ * Get the DC offset correction value for Rx TSP chain.
+ * This subtracts out the average signal level.
+ * \param self an instance of the LMS7002M driver
+ * \param channel the channel LMS_CHA or LMS_CHB
+ * \param enabled true to enable correction
+ * \return average window length 0-7 (def 0)
+ */
+LMS7002M_API bool LMS7002M_rxtsp_get_dc_correction(
+    LMS7002M_t *self,
+    const LMS7002M_chan_t channel);
+
+/*!
+ * DC offset correction value for Rx TSP chain.
+ * This subtracts out the average signal level.
+ * \param self an instance of the LMS7002M driver
+ * \param channel the channel LMS_CHA or LMS_CHB
+ * \param enabled true to enable correction
+ * \param window average window length 0-7 (def 0)
+ */
+LMS7002M_API void LMS7002M_rxtsp_set_dc_correction_window(
+    LMS7002M_t *self,
+    const LMS7002M_chan_t channel,
     const int window);
+
+/*!
+ * Get the DC offset correction value for Rx TSP chain.
+ * This subtracts out the average signal level.
+ * \param self an instance of the LMS7002M driver
+ * \param channel the channel LMS_CHA or LMS_CHB
+ * \param enabled true to enable correction
+ * \return average window length 0-7 (def 0)
+ */
+LMS7002M_API int LMS7002M_rxtsp_get_dc_correction_window(
+    LMS7002M_t *self,
+    const LMS7002M_chan_t channel);
 
 /*!
  * IQ imbalance correction value for Rx TSP chain.
@@ -816,6 +937,14 @@ LMS7002M_API void LMS7002M_rbb_set_test_out(LMS7002M_t *self, const LMS7002M_cha
 LMS7002M_API double LMS7002M_rbb_set_pga(LMS7002M_t *self, const LMS7002M_chan_t channel, const double gain);
 
 /*!
+ * Get the PGA gain for the RX baseband.
+ * \param self an instance of the LMS7002M driver
+ * \param channel the channel LMS_CHA or LMS_CHB
+ * \return the actual gain value in dB
+ */
+LMS7002M_API double LMS7002M_rbb_get_pga(LMS7002M_t *self, const LMS7002M_chan_t channel);
+
+/*!
  * Set the PGA gain for the RX baseband that is distributed.
  * \param self an instance of the LMS7002M driver
  * \param channel the channel LMS_CHA or LMS_CHB
@@ -863,6 +992,13 @@ LMS7002M_API void LMS7002M_rfe_enable(LMS7002M_t *self, const LMS7002M_chan_t ch
 LMS7002M_API void LMS7002M_rfe_set_path(LMS7002M_t *self, const LMS7002M_chan_t channel, const int path);
 
 /*!
+ * Get the active input path for the RX RF frontend.
+ * \param self an instance of the LMS7002M driver
+ * \param channel the channel LMS_CHA or LMS_CHB
+ */
+LMS7002M_API int LMS7002M_rfe_get_path(LMS7002M_t *self, const LMS7002M_chan_t channel);
+
+/*!
  * Set the LNA gain for the RX RF frontend.
  * \param self an instance of the LMS7002M driver
  * \param channel the channel LMS_CHA or LMS_CHB
@@ -870,6 +1006,14 @@ LMS7002M_API void LMS7002M_rfe_set_path(LMS7002M_t *self, const LMS7002M_chan_t 
  * \return the actual gain value in dB
  */
 LMS7002M_API double LMS7002M_rfe_set_lna(LMS7002M_t *self, const LMS7002M_chan_t channel, const double gain);
+
+/*!
+ * Get the LNA gain for the RX RF frontend.
+ * \param self an instance of the LMS7002M driver
+ * \param channel the channel LMS_CHA or LMS_CHB
+ * \return the actual gain value in dB
+ */
+LMS7002M_API double LMS7002M_rfe_get_lna(LMS7002M_t *self, const LMS7002M_chan_t channel);
 
 /*!
  * Set the LNA gain for the RX RF frontend that is distributed.
@@ -890,6 +1034,14 @@ LMS7002M_API double LMS7002M_rfe_set_lna_dist(LMS7002M_t *self, const LMS7002M_c
 LMS7002M_API double LMS7002M_rfe_set_loopback_lna(LMS7002M_t *self, const LMS7002M_chan_t channel, const double gain);
 
 /*!
+ * Get the LNA gain for the RX RF frontend (in TX loopback mode).
+ * \param self an instance of the LMS7002M driver
+ * \param channel the channel LMS_CHA or LMS_CHB
+ * \return the actual gain value in dB
+ */
+LMS7002M_API double LMS7002M_rfe_get_loopback_lna(LMS7002M_t *self, const LMS7002M_chan_t channel);
+
+/*!
  * Set the TIA gain for the RX RF frontend.
  * \param self an instance of the LMS7002M driver
  * \param channel the channel LMS_CHA or LMS_CHB
@@ -897,6 +1049,14 @@ LMS7002M_API double LMS7002M_rfe_set_loopback_lna(LMS7002M_t *self, const LMS700
  * \return the actual gain value in dB
  */
 LMS7002M_API double LMS7002M_rfe_set_tia(LMS7002M_t *self, const LMS7002M_chan_t channel, const double gain);
+
+/*!
+ * Get the TIA gain for the RX RF frontend.
+ * \param self an instance of the LMS7002M driver
+ * \param channel the channel LMS_CHA or LMS_CHB
+ * \return the actual gain value in dB
+ */
+LMS7002M_API double LMS7002M_rfe_get_tia(LMS7002M_t *self, const LMS7002M_chan_t channel);
 
 /*!
  * Set the TIA gain for the RX RF frontend that is distributed.

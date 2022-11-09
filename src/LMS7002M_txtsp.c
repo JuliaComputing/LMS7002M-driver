@@ -61,6 +61,16 @@ void LMS7002M_txtsp_set_freq(LMS7002M_t *self, const LMS7002M_chan_t channel, co
     LMS7002M_set_nco_freq(self, LMS_TX, channel, freqRel);
 }
 
+double LMS7002M_txtsp_get_freq(LMS7002M_t *self, const LMS7002M_chan_t channel)
+{
+    LMS7002M_set_mac_ch(self, channel);
+    LMS7002M_regs_spi_read(self, 0x0208);
+    if (self->regs->reg_0x0208_cmix_byp == 1)
+        return 0.0;
+    return LMS7002M_get_nco_freq(self, LMS_TX, channel);
+}
+
+
 void LMS7002M_txtsp_tsg_const(LMS7002M_t *self, const LMS7002M_chan_t channel, const int valI, const int valQ)
 {
     LMS7002M_set_mac_ch(self, channel);
@@ -136,6 +146,19 @@ void LMS7002M_txtsp_set_dc_correction(
     self->regs->reg_0x0204_dccorri = (int)(valI*128);
     self->regs->reg_0x0204_dccorrq = (int)(valQ*128);
     LMS7002M_regs_spi_write(self, 0x0204);
+}
+
+void LMS7002M_txtsp_get_dc_correction(
+    LMS7002M_t *self,
+    const LMS7002M_chan_t channel,
+    double *valI,
+    double *valQ)
+{
+    LMS7002M_set_mac_ch(self, channel);
+
+    int dccorr = LMS7002M_spi_read(self, 0x0204);
+    *valI = (double)(int8_t)((dccorr >> 8) & 0xff);
+    *valQ = (double)(int8_t)((dccorr >> 0) & 0xff);
 }
 
 void LMS7002M_txtsp_set_iq_correction(
