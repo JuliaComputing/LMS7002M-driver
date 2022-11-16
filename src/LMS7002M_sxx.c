@@ -137,6 +137,50 @@ int LMS7002M_set_lo_freq(LMS7002M_t *self, const LMS7002M_dir_t direction, const
     self->regs->reg_0x011c_reset_n = 1;
     LMS7002M_regs_spi_write(self, 0x011c);
 
+    // From https://github.com/xtrx-sdr/liblms7002m/blob/master/liblms7002m.c#L535
+    LMS7002M_sxx_enable(self, direction, true);
+    self->regs->reg_0x0120_vdiv_vco = 204;
+    self->regs->reg_0x0120_ict_vco = 192;
+    LMS7002M_regs_spi_write(self, 0x0120);
+    self->regs->reg_0x0122_revph_pfd = 0;
+    self->regs->reg_0x0122_ioffset_cp = 20;
+    self->regs->reg_0x0122_ipulse_cp = 20;
+    // struct for reg 0122 is missing to set lower voltage threshold, so do it manually
+    const int reg_0122 = 1u << 13 | // PLL VCO comparator low treshold 0.1V
+         self->regs->reg_0x0122_revph_pfd << 12 |
+         self->regs->reg_0x0122_ioffset_cp << 6 |
+         self->regs->reg_0x0122_ipulse_cp;
+    LMS7002M_spi_write(self, 0x0122, reg_0122);
+    self->regs->reg_0x011c_reset_n = 1;
+    self->regs->reg_0x011c_spdup_vco = 0;
+    self->regs->reg_0x011c_bypldo_vco = 0;
+    self->regs->reg_0x011c_en_coarsepll = 0;
+    self->regs->reg_0x011c_curlim_vco = 1;
+    self->regs->reg_0x011c_en_div2_divprog = 1u;
+    self->regs->reg_0x011c_en_intonly_sdm = 0;
+    self->regs->reg_0x011c_en_sdm_clk = 1;
+    self->regs->reg_0x011c_pd_fbdiv = 0;
+    self->regs->reg_0x011c_pd_loch_t2rbuf = 1; // TODO correct?
+    // Power down for LO buffer from SXT to SXR. To be active
+    // only in the TDD mode. In TX part only!!
+    // 0 – block active
+    // 1 – block powered down (default)
+    self->regs->reg_0x011c_pd_cp = 0;
+    self->regs->reg_0x011c_pd_fdiv = 0;
+    self->regs->reg_0x011c_pd_sdm = 0;
+    self->regs->reg_0x011c_pd_vco_comp = 0;
+    self->regs->reg_0x011c_pd_vco = 0;
+    self->regs->reg_0x011c_en_g = 1;
+    LMS7002M_regs_spi_write(self, 0x011c);
+    self->regs->reg_0x011f_pw_div2_loch = 3;
+    self->regs->reg_0x011f_pw_div4_loch = 3;
+    self->regs->reg_0x011f_div_loch = 6;
+    self->regs->reg_0x011f_tst_sx = 0;
+    self->regs->reg_0x011f_sel_sdmclk = 0;
+    self->regs->reg_0x011f_sx_dither_en = 0;
+    self->regs->reg_0x011f_rev_sdmclk = 0;
+    LMS7002M_regs_spi_write(self, 0x011f);
+
     //state for each VCO
     LMS7002M_sxx_tune_state states[3];
     LMS7002M_sxx_calc_tune_state(fref, fout, LMS7002M_SXX_VCOL_LO, LMS7002M_SXX_VCOL_HI, states+0);
