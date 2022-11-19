@@ -185,3 +185,38 @@ void LMS7002M_txtsp_set_iq_correction(
     LMS7002M_regs_spi_write(self, 0x0202);
     LMS7002M_regs_spi_write(self, 0x0201);
 }
+
+void LMS7002M_txtsp_get_iq_correction(
+    LMS7002M_t *self,
+    const LMS7002M_chan_t channel,
+    double* phase,
+    double* gain)
+{
+    LMS7002M_set_mac_ch(self, channel);
+
+    LMS7002M_regs_spi_read(self, 0x0203);
+    LMS7002M_regs_spi_read(self, 0x0202);
+    LMS7002M_regs_spi_read(self, 0x0201);
+    LMS7002M_regs_spi_read(self, 0x0208);
+
+    int bypassPhase = self->regs->reg_0x0208_ph_byp;
+    int bypassGain = self->regs->reg_0x0208_gc_byp;
+
+    *phase = self->regs->reg_0x0203_iqcorr * (M_PI/2)/2047;
+    int gaini = self->regs->reg_0x0202_gcorri;
+    int gainq = self->regs->reg_0x0201_gcorrq;
+
+    if (gaini == 2047) {
+        *gain = 1.0/(gainq/2047.0);
+    } else if (gainq == 2047) {
+        *gain = gaini/2047.0;
+    } else { // likely maxxed intentionally
+        *gain = 1.0;
+    }
+
+    if (bypassGain)
+        *gain = 1.0; // or 0.0
+    if (bypassPhase)
+        *phase = 0.0;
+    return;
+}
