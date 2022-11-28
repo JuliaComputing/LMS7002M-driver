@@ -265,10 +265,10 @@ int LMS7002M_get_lo_freq(LMS7002M_t *self, const LMS7002M_dir_t direction, const
     int Nint = self->regs->reg_0x011e_int_sdm;
 
     LMS7002M_regs_spi_read(self, 0x011d);
-    int Nfrac = self->regs->reg_0x011d_frac_sdm | (self->regs->reg_0x011e_frac_sdm << 16);
+    int Nfrac = (self->regs->reg_0x011d_frac_sdm & 0xffff) | (self->regs->reg_0x011e_frac_sdm << 16);
 
     LMS7002M_regs_spi_read(self, 0x011f);
-    int fdiv = 1 << (self->regs->reg_0x011f_div_loch + 1);
+    int fdiv = (1 << (self->regs->reg_0x011f_div_loch))*2;
 
     //calculate the actual rate
     return (1 << EN_DIV2) * fref * ((Nint+4) + (Nfrac/((double)(1 << 20)))) / fdiv;
