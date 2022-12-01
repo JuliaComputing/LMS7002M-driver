@@ -164,3 +164,35 @@ int LMS7002M_mcu_set_parameter(LMS7002M_t *self, LMS7002M_mcu_param_t param,
 
     return 0;
 }
+
+int LMS7002M_mcu_set_parameter_uint32(LMS7002M_t *self, LMS7002M_mcu_param_t param,
+                               uint16_t value)
+{
+    const uint8_t control_val = LMS7002M_spi_read(self, LMS_MCU_CONTROL_REG);
+    const uint8_t interupt7 = 1<<2;
+
+    // split the parameter in three bytes (kHz LSB, kHz MSB, MHz int)
+    uint8_t inputRegs[3];
+    inputRegs[0] = (uint8_t)value; //frequency integer part
+    inputRegs[1] = (value >> 8) & 0xFF;
+    inputRegs[2] = value & 0xFF;
+
+    // shift the values in
+    for (uint8_t i = 0; i < 2; ++i) {
+        LMS7002M_spi_write(self, LMS_MCU_P0_REG, inputRegs[2-i]);
+
+        // trigger an interrupt
+        LMS7002M_spi_write(self, LMS_MCU_CONTROL_REG, control_val | interupt7);
+        LMS7002M_spi_write(self, LMS_MCU_CONTROL_REG, control_val & ~interupt7);
+
+        usleep(5);
+    }
+
+    int status = LMS7002M_mcu_wait(self, 100);
+    if (status != 0) {
+        LMS7_logf(LMS7_ERROR, "Could not set MCU parameter (failed with status %d)", status);
+        return -1;
+    }
+
+    return 0;
+}
